@@ -16,13 +16,7 @@ import {
   NavbarLogo,
   NavbarButton,
 } from "~/components/ui/resizable-navbar"
-
-const navigation = [
-  { name: "Inicio", link: "#inicio" },
-  { name: "Beneficios", link: "#beneficios" },
-  { name: "Testimonios", link: "#testimonios" },
-  { name: "Cómo funciona", link: "#como-funciona" },
-]
+import { NAVIGATION, BENEFITS, TESTIMONIALS, STEPS, ROUTES, SECTIONS } from "~/server/lib/constants"
 
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -33,8 +27,8 @@ export default function HomePage() {
       <Navbar>
         <NavBody>
           <NavbarLogo />
-          <NavItems items={navigation} />
-          <NavbarButton href="/signin" variant="primary">
+          <NavItems items={NAVIGATION} />
+          <NavbarButton href={ROUTES.SIGNIN} variant="primary">
             Iniciar sesión
           </NavbarButton>
         </NavBody>
@@ -44,7 +38,7 @@ export default function HomePage() {
             <MobileNavToggle isOpen={mobileMenuOpen} onClick={() => setMobileMenuOpen(!mobileMenuOpen)} />
           </MobileNavHeader>
           <MobileNavMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)}>
-            {navigation.map((item) => (
+            {NAVIGATION.map((item) => (
               <a
                 key={item.name}
                 href={item.link}
@@ -54,7 +48,7 @@ export default function HomePage() {
                 {item.name}
               </a>
             ))}
-            <NavbarButton href="/signin" variant="primary" className="mt-4">
+            <NavbarButton href={ROUTES.SIGNIN} variant="primary" className="mt-4">
               Iniciar sesión
             </NavbarButton>
           </MobileNavMenu>
@@ -64,7 +58,7 @@ export default function HomePage() {
       {/* Hero */}
       <div className="relative isolate px-6 pt-24 lg:px-8">
         <HeroHighlight>
-          <div id="inicio" className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56 text-center">
+          <div id={SECTIONS.INICIO} className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56 text-center">
             <motion.h1
               className="text-5xl font-bold tracking-tight sm:text-7xl"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
@@ -82,13 +76,13 @@ export default function HomePage() {
               initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, duration: 0.6 }}
             >
               <Link
-                href="/dashboard"
+                href={ROUTES.DASHBOARD}
                 className="rounded-md bg-cyan-500 px-5 py-3 text-sm font-semibold text-white shadow-lg
                            hover:bg-cyan-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-500"
               >
                 Despega ya
               </Link>
-              <Link href="#beneficios" className="text-sm font-semibold text-gray-900">
+              <Link href={`#${SECTIONS.BENEFICIOS}`} className="text-sm font-semibold text-gray-900">
                 Más detalles <span aria-hidden="true">→</span>
               </Link>
             </motion.div>
@@ -129,13 +123,9 @@ export default function HomePage() {
       </motion.div>
 
       {/* Beneficios */}
-      <section id="beneficios" className="py-20 bg-gray-50">
+      <section id={SECTIONS.BENEFICIOS} className="py-20 bg-gray-50">
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-          {[
-            { icon: "⚡", title: "Búsqueda instantánea", desc: "Resultados al momento gracias a nuestros filtros inteligentes." },
-            { icon: "🔍", title: "Filtros avanzados", desc: "Filtra por sector, comunidad y fecha para máxima precisión." },
-            { icon: "🔔", title: "Alertas personalizadas", desc: "Recibe notificaciones cuando aparezcan subvenciones para ti." },
-          ].map((b, i) => (
+          {BENEFITS.map((b, i) => (
             <motion.div
               key={i}
               className="p-6 bg-white rounded-xl shadow"
@@ -150,13 +140,10 @@ export default function HomePage() {
       </section>
 
       {/* Testimonios */}
-      <section id="testimonios" className="py-20 px-6">
+      <section id={SECTIONS.TESTIMONIOS} className="py-20 px-6">
         <h2 className="text-3xl font-bold text-center mb-12">Qué dicen de aYIDA</h2>
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-          {[
-            { name: "Laura Gómez, EcoStart", text: "Encontramos la subvención clave en minutos. ¡Imprescindible!" },
-            { name: "Carlos Pérez, TechWave", text: "Las alertas me salvaron de perder plazos. Súper útil." },
-          ].map((t, i) => (
+          {TESTIMONIALS.map((t, i) => (
             <motion.blockquote
               key={i}
               className="p-6 bg-gray-100 rounded-lg italic"
@@ -170,14 +157,10 @@ export default function HomePage() {
       </section>
 
       {/* Cómo funciona */}
-      <section id="como-funciona" className="py-20 bg-gray-50">
+      <section id={SECTIONS.COMO_FUNCIONA} className="py-20 bg-gray-50">
         <h2 className="text-3xl font-bold text-center mb-12">Cómo funciona</h2>
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-6">
-          {[
-            { step: "1", title: "Regístrate", desc: "Crea tu cuenta en segundos." },
-            { step: "2", title: "Explora", desc: "Filtra y encuentra subvenciones a tu medida." },
-            { step: "3", title: "Solicita", desc: "Envía tu solicitud con un solo clic." },
-          ].map((s, i) => (
+          {STEPS.map((s, i) => (
             <motion.div
               key={i}
               className="text-center p-6"
@@ -205,7 +188,7 @@ export default function HomePage() {
           initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.4, duration: 0.6 }}
         >
           <Link
-            href="/dashboard"
+            href={ROUTES.DASHBOARD}
             className="px-8 py-3 bg-cyan-500 text-white font-semibold rounded-lg shadow hover:bg-cyan-600 transition"
           >
             Despega ya

@@ -1,74 +1,336 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+/// Define el generador del Cliente de Prisma.
+/// Esto le dice a Prisma que genere el cliente de TypeScript para que puedas usarlo en tu código.
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
+/// Define la fuente de datos.
+/// Aquí especificas que usarás una base de datos PostgreSQL.
+/// La URL se toma de la variable de entorno DATABASE_URL, ideal para conectar a Supabase.
 datasource db {
-    provider = "postgresql"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+// ----------------------------------------------------------------
+// --- MODELOS PRINCIPALES - El corazón de tu aplicación         ---
+// ----------------------------------------------------------------
 
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
+/// Almacena cada convocatoria de subvención. Es la entidad central.
+/// Este modelo se basa en el objeto ConvocatoriaDetalle de la API de SNPSAP para capturar toda la información.
+model Convocatoria {
+  /// Identificador único interno en nuestra base de datos. Autoincremental.
+  id                    Int       @id @default(autoincrement())
+  /// Identificador único de la convocatoria en la API de origen. CRÍTICO para hacer 'upserts' y no duplicar datos.
+  idOficial             Int       @unique
+  /// Código de la Base de Datos Nacional de Subvenciones. Es el identificador más conocido públicamente.
+  codigoBDNS            String    @unique
+  /// Título oficial de la convocatoria.
+  titulo                String    @db.Text
+  /// Título en la lengua cooficial, si existe.
+  tituloCooficial       String?   @db.Text
+  /// Texto completo o extracto de la convocatoria, útil para búsquedas y resúmenes.
+  descripcion           String?   @db.Text
+  /// Presupuesto total de la convocatoria, si se especifica.
+  presupuestoTotal      Float?
+  /// Enlace a las bases reguladoras oficiales (BOE, etc.).
+  urlBasesReguladoras   String?
+  /// Sede electrónica para presentar la solicitud.
+  sedeElectronica       String?
+  /// Fecha en que la convocatoria fue publicada en la BDNS.
+  fechaPublicacion      DateTime
+  /// Fecha de inicio del plazo para presentar solicitudes.
+  fechaInicioSolicitud  DateTime?
+  /// Fecha de fin del plazo para presentar solicitudes.
+  fechaFinSolicitud     DateTime?
+  /// Indica si la convocatoria tiene un plazo abierto de forma indefinida.
+  plazoAbierto          Boolean?
 
-    @@index([name])
+  // --- Campos Enriquecidos por IA ---
+  /// Resumen conciso de la convocatoria, generado por IA para una lectura rápida.
+  resumenIA             String?   @db.Text
+  /// Tags o palabras clave flexibles generadas por IA para mejorar la búsqueda.
+  tags                  Tag[]
+
+  // --- Relaciones con Catálogos ---
+  /// ID del órgano convocante (clave foránea).
+  organoId              String?  /// Relación con el órgano que convoca la ayuda.
+  organo                Organo?          @relation(fields: [organoId], references: [idOficial])
+  /// ID de la finalidad de la ayuda (clave foránea).
+  finalidadId           Int?
+  /// Relación con la finalidad o política de gasto.
+  finalidad             Finalidad?       @relation(fields: [finalidadId], references: [idOficial])
+  /// ID del reglamento europeo aplicable (clave foránea).
+  reglamentoId          Int?
+  /// Relación con el reglamento de la UE que ampara la ayuda.
+  reglamento            ReglamentoUE?    @relation(fields: [reglamentoId], references: [idOficial])
+
+  // --- Relaciones Muchos-a-Muchos ---
+  /// Relación con los perfiles que pueden solicitar la ayuda.
+  tiposBeneficiario     TipoBeneficiario[]
+  /// Relación con los tipos de ayuda que se ofrecen (subvención, préstamo, etc.).
+  instrumentosAyuda     InstrumentoAyuda[]
+  /// Relación con las CCAA o provincias donde aplica la ayuda.
+  regionesDeImpacto     Region[]
+  /// Relación con los sectores económicos a los que se dirige.
+  sectoresEconomicos    Actividad[]
+  /// Relación con los fondos europeos que cofinancian la ayuda.
+  fondosEuropeos        Fondo[]
+  /// Relación con tus categorías internas para organizar la información.
+  categorias            Categoria[]
+
+  // --- Relación Uno-a-Muchos ---
+  /// Lista de todas las concesiones específicas otorgadas bajo esta convocatoria.
+  concesiones           Concesion[]
 }
 
-// Necessary for Next auth
-model Account {
-    id                       String  @id @default(cuid())
-    userId                   String
-    type                     String
-    provider                 String
-    providerAccountId        String
-    refresh_token            String? // @db.Text
-    access_token             String? // @db.Text
-    expires_at               Int?
-    token_type               String?
-    scope                    String?
-    id_token                 String? // @db.Text
-    session_state            String?
-    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    refresh_token_expires_in Int?
+/// Almacena cada ayuda específica que ha sido concedida a un beneficiario concreto.
+model Concesion {
+  /// Identificador único interno.
+  id                    Int       @id @default(autoincrement())
+  /// ID oficial de la concesión en la API. Se usa para evitar duplicados.
+  idOficial             Int       @unique
+  /// Importe monetario concedido.
+  importe               Float
+  /// Importe de la ayuda expresado en "equivalente de subvención bruta".
+  ayudaEquivalente      Float
+  /// Fecha en la que se concedió oficialmente la ayuda.
+  fechaConcesion        DateTime
 
-    @@unique([provider, providerAccountId])
+  // --- Relaciones ---
+  /// ID (oficial) de la convocatoria a la que pertenece.
+  convocatoriaId        Int
+  /// Enlace al registro de la Convocatoria.
+  convocatoria          Convocatoria @relation(fields: [convocatoriaId], references: [idOficial])
+  /// ID (oficial) del beneficiario que ha recibido la ayuda.
+  beneficiarioId        Int
+  /// Enlace al registro del Beneficiario.
+  beneficiario          Beneficiario @relation(fields: [beneficiarioId], references: [idOficial])
+  /// ID (oficial) del instrumento de ayuda.
+  instrumentoId         Int?
+  /// Enlace al instrumento de ayuda.
+  instrumento           InstrumentoAyuda? @relation(fields: [instrumentoId], references: [idOficial])
 }
 
-model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+/// Representa a una persona física o jurídica (empresa, asociación, etc.) que puede recibir una subvención.
+model Beneficiario {
+  /// Identificador único interno.
+  id                    Int      @id @default(autoincrement())
+  /// ID oficial de la persona/entidad en la API (idPersona).
+  idOficial             Int      @unique
+  /// NIF/CIF del beneficiario. Es opcional porque no siempre está disponible.
+  nifCif                String?  @unique
+  /// Nombre o Razón Social del beneficiario.
+  nombre                String   @db.Text
+
+  /// Lista de todas las concesiones que ha recibido este beneficiario.
+  concesiones           Concesion[]
 }
 
+
+// ----------------------------------------------------------------
+// --- MODELOS DE CATÁLOGO - Para filtros y datos normalizados   ---
+// ----------------------------------------------------------------
+
+/// Tabla para los organismos que publican subvenciones.
+model Organo {
+  id              Int      @id @default(autoincrement())
+  /// ID oficial del órgano en la API.
+  idOficial       String   @unique
+  /// Nombre completo del órgano (ej: "Ministerio de Industria, Comercio y Turismo").
+  nombre          String
+  /// Tipo de administración: 'C' (Estado), 'A' (Autonómica), 'L' (Local), 'O' (Otros).
+  tipoAdministracion String?
+
+  /// Lista de convocatorias publicadas por este órgano.
+  convocatorias   Convocatoria[]
+}
+
+/// Tabla para las regiones geográficas de impacto.
+model Region {
+  id              Int      @id @default(autoincrement())
+  /// ID oficial de la región en la API.
+  idOficial       Int      @unique
+  /// Nombre de la región (ej: "Comunidad de Madrid").
+  nombre          String
+
+  /// Lista de convocatorias que aplican a esta región.
+  convocatorias   Convocatoria[] @relation()
+}
+
+/// Tabla para las finalidades o políticas de gasto de las ayudas.
+model Finalidad {
+  id              Int      @id @default(autoincrement())
+  /// ID oficial de la finalidad en la API.
+  idOficial       Int      @unique
+  /// Descripción de la finalidad (ej: "INDUSTRIA Y ENERGÍA").
+  descripcion     String   @db.Text
+
+  /// Lista de convocatorias con esta finalidad.
+  convocatorias   Convocatoria[]
+}
+
+/// Tabla para los tipos de beneficiarios a los que se dirige una ayuda.
+model TipoBeneficiario {
+  id              Int      @id @default(autoincrement())
+  /// ID oficial del tipo de beneficiario en la API.
+  idOficial       Int      @unique
+  /// Descripción (ej: "PYME Y PERSONAS FÍSICAS QUE DESARROLLAN ACTIVIDAD ECONÓMICA").
+  descripcion     String
+
+  /// Lista de convocatorias para este tipo de beneficiario.
+  convocatorias   Convocatoria[] @relation()
+}
+
+/// Tabla para los tipos de ayuda (instrumentos).
+model InstrumentoAyuda {
+  id              Int      @id @default(autoincrement())
+  /// ID oficial del instrumento en la API.
+  idOficial       Int      @unique
+  /// Descripción (ej: "SUBVENCIÓN Y ENTREGA DINERARIA SIN CONTRAPRESTACIÓN").
+  descripcion     String
+
+  /// Lista de convocatorias que usan este instrumento.
+  convocatorias   Convocatoria[] @relation()
+  /// Lista de concesiones que usan este instrumento.
+  concesiones     Concesion[]
+}
+
+/// Tabla para los sectores económicos (basado en NACE).
+model Actividad {
+  id              Int      @id @default(autoincrement())
+  /// ID oficial de la actividad en la API.
+  idOficial       Int      @unique
+  /// Código oficial de la actividad NACE.
+  codigo          String?
+  /// Descripción del sector (ej: "INDUSTRIA MANUFACTURERA").
+  descripcion     String   @db.Text
+
+  /// Lista de convocatorias para este sector.
+  convocatorias   Convocatoria[] @relation()
+}
+
+/// Tabla para los Reglamentos de la Unión Europea.
+model ReglamentoUE {
+  id              Int      @id @default(autoincrement())
+  /// ID oficial del reglamento en la API.
+  idOficial       Int      @unique
+  /// Descripción del reglamento.
+  descripcion     String   @db.Text
+
+  /// Lista de convocatorias amparadas por este reglamento.
+  convocatorias   Convocatoria[]
+}
+
+/// Tabla para los fondos de financiación (ej. FEDER).
+model Fondo {
+  id              Int      @id @default(autoincrement())
+  /// Nombre del fondo. Debe ser único.
+  nombre          String   @unique
+
+  /// Lista de convocatorias financiadas por este fondo.
+  convocatorias   Convocatoria[] @relation()
+}
+
+
+// ----------------------------------------------------------------
+// --- MODELOS DE ENRIQUECIMIENTO (IA y Curación Manual)         ---
+// ----------------------------------------------------------------
+
+/// Tus categorías personalizadas para clasificar las ayudas (ej: "Creación de empresa").
+model Categoria {
+  id              Int           @id @default(autoincrement())
+  /// Nombre de la categoría, debe ser único.
+  nombre          String        @unique
+  /// Lista de convocatorias asociadas a esta categoría.
+  convocatorias   Convocatoria[] @relation()
+}
+
+/// Tags flexibles generados por la IA para búsqueda semántica (ej: "eficiencia-energetica").
+model Tag {
+  id              Int           @id @default(autoincrement())
+  /// El nombre del tag, debe ser único.
+  nombre          String        @unique
+  /// Lista de convocatorias asociadas a este tag.
+  convocatorias   Convocatoria[] @relation()
+}
+
+
+// ----------------------------------------------------------------
+// --- MODELOS DE USUARIO Y AUTENTICACIÓN (NextAuth)             ---
+// ----------------------------------------------------------------
+
+/// Modelo para los usuarios de tu aplicación.
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    posts         Post[]
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+
+  /// Relación con las cuentas de proveedores de autenticación (Google, etc.).
+  accounts      Account[]
+  /// Relación con las sesiones activas del usuario.
+  sessions      Session[]
+  /// Relación con las alertas de búsqueda guardadas por el usuario.
+  alertas       Alerta[]
 }
 
-model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+/// Modelo de NextAuth para gestionar las cuentas de diferentes proveedores.
+model Account {
+  id                       String  @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String? @db.Text
+  access_token             String? @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? @db.Text
+  session_state            String?
+  refresh_token_expires_in Int?
 
-    @@unique([identifier, token])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+/// Modelo de NextAuth para gestionar las sesiones de usuario.
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// Modelo de NextAuth para los tokens de verificación de email.
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+/// Modelo para que los usuarios guarden sus búsquedas y reciban notificaciones por email.
+model Alerta {
+  id        Int      @id @default(autoincrement())
+  /// ID del usuario que crea la alerta.
+  userId    String
+  /// Relación con el usuario.
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Nombre que el usuario le da a su alerta (ej: "Ayudas para PYMES en Madrid").
+  nombre    String
+  
+  /// Guardamos los criterios de búsqueda (filtros) en formato JSON para poder re-ejecutarlos.
+  filtros   Json
+  
+  /// Fecha de creación de la alerta.
+  createdAt DateTime @default(now())
 }

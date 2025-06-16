@@ -22,10 +22,10 @@ interface NavBodyProps {
 }
  
 interface NavItemsProps {
-  items: {
-    name: string;
-    link: string;
-  }[];
+  items: ReadonlyArray<{
+    readonly name: string;
+    readonly link: string;
+  }>;
   className?: string;
   onItemClick?: () => void;
 }
