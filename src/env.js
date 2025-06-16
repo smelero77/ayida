@@ -7,16 +7,20 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    AUTH_SECRET:
-      process.env.NODE_ENV === "production"
-        ? z.string()
-        : z.string().optional(),
-    AUTH_DISCORD_ID: z.string(),
-    AUTH_DISCORD_SECRET: z.string(),
+    // Hemos quitado por completo las variables de Discord de aquí.
     DATABASE_URL: z.string().url(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    
+    // Las variables de NextAuth se llaman así en tu archivo .env, así que las definimos aquí.
+    NEXTAUTH_SECRET:
+      process.env.NODE_ENV === "production"
+        ? z.string().min(1)
+        : z.string().min(1).optional(),
+    NEXTAUTH_URL: z.string().url().optional(),
+    AUTH_GOOGLE_ID: z.string().min(1),
+    AUTH_GOOGLE_SECRET: z.string().min(1),
   },
 
   /**
@@ -33,11 +37,13 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
-    AUTH_SECRET: process.env.AUTH_SECRET,
-    AUTH_DISCORD_ID: process.env.AUTH_DISCORD_ID,
-    AUTH_DISCORD_SECRET: process.env.AUTH_DISCORD_SECRET,
+    // Aquí listamos TODAS las variables que definimos en el bloque `server`
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID,
+    AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

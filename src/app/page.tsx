@@ -1,69 +1,222 @@
-import Link from "next/link";
+// src/pages/index.tsx
+"use client"
 
-import { LatestPost } from "~/app/_components/post";
-import { auth } from "~/server/auth";
-import { api, HydrateClient } from "~/trpc/server";
+import { useState } from "react"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { HeroHighlight, Highlight } from "~/components/ui/hero-highlight"
+import {
+  Navbar,
+  NavBody,
+  NavItems,
+  MobileNav,
+  MobileNavHeader,
+  MobileNavMenu,
+  MobileNavToggle,
+  NavbarLogo,
+  NavbarButton,
+} from "~/components/ui/resizable-navbar"
 
-export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
-  const session = await auth();
+const navigation = [
+  { name: "Inicio", link: "#inicio" },
+  { name: "Beneficios", link: "#beneficios" },
+  { name: "Testimonios", link: "#testimonios" },
+  { name: "Cómo funciona", link: "#como-funciona" },
+]
 
-  if (session?.user) {
-    void api.post.getLatest.prefetch();
-  }
+export default function HomePage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
-    <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
-          </h1>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
-            </p>
-
-            <div className="flex flex-col items-center justify-center gap-4">
-              <p className="text-center text-2xl text-white">
-                {session && <span>Logged in as {session.user?.name}</span>}
-              </p>
-              <Link
-                href={session ? "/api/auth/signout" : "/api/auth/signin"}
-                className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
+    <div className="bg-white text-gray-900">
+      {/* Header */}
+      <Navbar>
+        <NavBody>
+          <NavbarLogo />
+          <NavItems items={navigation} />
+          <NavbarButton href="/signin" variant="primary">
+            Iniciar sesión
+          </NavbarButton>
+        </NavBody>
+        <MobileNav>
+          <MobileNavHeader>
+            <NavbarLogo />
+            <MobileNavToggle isOpen={mobileMenuOpen} onClick={() => setMobileMenuOpen(!mobileMenuOpen)} />
+          </MobileNavHeader>
+          <MobileNavMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)}>
+            {navigation.map((item) => (
+              <a
+                key={item.name}
+                href={item.link}
+                className="block px-4 py-2 text-base font-semibold hover:bg-gray-50"
+                onClick={() => setMobileMenuOpen(false)}
               >
-                {session ? "Sign out" : "Sign in"}
-              </Link>
-            </div>
-          </div>
+                {item.name}
+              </a>
+            ))}
+            <NavbarButton href="/signin" variant="primary" className="mt-4">
+              Iniciar sesión
+            </NavbarButton>
+          </MobileNavMenu>
+        </MobileNav>
+      </Navbar>
 
-          {session?.user && <LatestPost />}
+      {/* Hero */}
+      <div className="relative isolate px-6 pt-24 lg:px-8">
+        <HeroHighlight>
+          <div id="inicio" className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56 text-center">
+            <motion.h1
+              className="text-5xl font-bold tracking-tight sm:text-7xl"
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
+            >
+              aYIDA: <Highlight>subvenciones</Highlight> a la velocidad de tu idea
+            </motion.h1>
+            <motion.p
+              className="mt-6 text-lg leading-8 text-gray-600"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.6 }}
+            >
+              Descubre, filtra y solicita ayudas públicas con un solo clic. Olvida la burocracia, concéntrate en tu proyecto.
+            </motion.p>
+            <motion.div
+              className="mt-10 flex items-center justify-center gap-x-6"
+              initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.6, duration: 0.6 }}
+            >
+              <Link
+                href="/dashboard"
+                className="rounded-md bg-cyan-500 px-5 py-3 text-sm font-semibold text-white shadow-lg
+                           hover:bg-cyan-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-500"
+              >
+                Despega ya
+              </Link>
+              <Link href="#beneficios" className="text-sm font-semibold text-gray-900">
+                Más detalles <span aria-hidden="true">→</span>
+              </Link>
+            </motion.div>
+          </div>
+        </HeroHighlight>
+      </div>
+
+      {/* Top blob */}
+      <motion.div
+        aria-hidden="true"
+        className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}
+      >
+        <div
+          className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36rem] -translate-x-1/2 rotate-30
+                     bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30
+                     sm:left-[calc(50%-30rem)] sm:w-[72rem]"
+          style={{ clipPath:
+            "polygon(74.1% 44.1%,100% 61.6%,97.5% 26.9%,85.5% 0.1%,80.7% 2%,72.5% 32.5%,60.2% 62.4%,52.4% 68.1%,47.5% 58.3%,45.2% 34.5%,27.5% 76.7%,0.1% 64.9%,17.9% 100%,27.6% 76.8%,76.1% 97.7%,74.1% 44.1%)"
+          }}
+        />
+      </motion.div>
+
+      {/* Bottom blob */}
+      <motion.div
+        aria-hidden="true"
+        className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}
+      >
+        <div
+          className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36rem] -translate-x-1/2
+                     bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30
+                     sm:left-[calc(50%+36rem)] sm:w-[72rem]"
+          style={{ clipPath:
+            "polygon(74.1% 44.1%,100% 61.6%,97.5% 26.9%,85.5% 0.1%,80.7% 2%,72.5% 32.5%,60.2% 62.4%,52.4% 68.1%,47.5% 58.3%,45.2% 34.5%,27.5% 76.7%,0.1% 64.9%,17.9% 100%,27.6% 76.8%,76.1% 97.7%,74.1% 44.1%)"
+          }}
+        />
+      </motion.div>
+
+      {/* Beneficios */}
+      <section id="beneficios" className="py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+          {[
+            { icon: "⚡", title: "Búsqueda instantánea", desc: "Resultados al momento gracias a nuestros filtros inteligentes." },
+            { icon: "🔍", title: "Filtros avanzados", desc: "Filtra por sector, comunidad y fecha para máxima precisión." },
+            { icon: "🔔", title: "Alertas personalizadas", desc: "Recibe notificaciones cuando aparezcan subvenciones para ti." },
+          ].map((b, i) => (
+            <motion.div
+              key={i}
+              className="p-6 bg-white rounded-xl shadow"
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 * i, duration: 0.6 }}
+            >
+              <div className="text-4xl mb-4">{b.icon}</div>
+              <h3 className="text-xl font-semibold mb-2">{b.title}</h3>
+              <p className="text-gray-600">{b.desc}</p>
+            </motion.div>
+          ))}
         </div>
-      </main>
-    </HydrateClient>
-  );
+      </section>
+
+      {/* Testimonios */}
+      <section id="testimonios" className="py-20 px-6">
+        <h2 className="text-3xl font-bold text-center mb-12">Qué dicen de aYIDA</h2>
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+          {[
+            { name: "Laura Gómez, EcoStart", text: "Encontramos la subvención clave en minutos. ¡Imprescindible!" },
+            { name: "Carlos Pérez, TechWave", text: "Las alertas me salvaron de perder plazos. Súper útil." },
+          ].map((t, i) => (
+            <motion.blockquote
+              key={i}
+              className="p-6 bg-gray-100 rounded-lg italic"
+              initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 * i, duration: 0.6 }}
+            >
+              "{t.text}"
+              <footer className="mt-4 font-semibold text-right">— {t.name}</footer>
+            </motion.blockquote>
+          ))}
+        </div>
+      </section>
+
+      {/* Cómo funciona */}
+      <section id="como-funciona" className="py-20 bg-gray-50">
+        <h2 className="text-3xl font-bold text-center mb-12">Cómo funciona</h2>
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-6">
+          {[
+            { step: "1", title: "Regístrate", desc: "Crea tu cuenta en segundos." },
+            { step: "2", title: "Explora", desc: "Filtra y encuentra subvenciones a tu medida." },
+            { step: "3", title: "Solicita", desc: "Envía tu solicitud con un solo clic." },
+          ].map((s, i) => (
+            <motion.div
+              key={i}
+              className="text-center p-6"
+              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2 * i, duration: 0.6 }}
+            >
+              <div className="mx-auto mb-4 w-12 h-12 flex items-center justify-center rounded-full bg-cyan-500 text-white">
+                {s.step}
+              </div>
+              <h3 className="text-xl font-semibold mb-2">{s.title}</h3>
+              <p className="text-gray-600">{s.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA Final */}
+      <section className="py-20 text-center">
+        <motion.h2
+          className="text-4xl font-bold mb-6"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}
+        >
+          Listo para despegar tu proyecto?
+        </motion.h2>
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.4, duration: 0.6 }}
+        >
+          <Link
+            href="/dashboard"
+            className="px-8 py-3 bg-cyan-500 text-white font-semibold rounded-lg shadow hover:bg-cyan-600 transition"
+          >
+            Despega ya
+          </Link>
+        </motion.div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-6 bg-white text-center text-gray-500">
+        © {new Date().getFullYear()} aYIDA. Todos los derechos reservados.
+      </footer>
+    </div>
+  )
 }
