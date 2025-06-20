@@ -7,8 +7,17 @@ export const SNPSAP_API_BASE_URL = 'https://www.infosubvenciones.es/bdnstrans/ap
  * URL de ingesta de logs para tu Source de Better Stack.
  * Esta URL es específica para tu cuenta.
  */
-
 export const BETTERSTACK_INGEST_URL = 'https://s1349735.eu-nbg-2.betterstackdata.com';
+
+/**
+ * Configuración de Prisma para controlar el nivel de logging.
+ * Durante procesos ETL, se recomienda usar 'error' para evitar que las consultas SQL
+ * ralenticen el proceso escribiendo a la consola.
+ */
+export const PRISMA_CONFIG = {
+  LOG_LEVEL: process.env.PRISMA_LOG_LEVEL || 'error', // 'query' | 'info' | 'warn' | 'error'
+  ETL_LOG_LEVEL: 'error', // Nivel específico para procesos ETL (solo errores)
+} as const;
 
 /**
  * Rutas de la aplicación

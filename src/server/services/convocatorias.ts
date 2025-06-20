@@ -40,8 +40,8 @@ export async function getConvocatoriaDetalle(bdns: string, jobName: string, runI
         const data = await response.json();
         return Array.isArray(data) ? data[0] : data;
 
-    } catch (error: any) {
-        logger.error(`Excepción de red al obtener detalle para BDNS ${bdns}`, { ...logMeta, error: error.message });
+    } catch (error: unknown) {
+        logger.error(`Excepción de red al obtener detalle para BDNS ${bdns}`, error as Error, logMeta);
         metrics.increment('etl.items.errors');
         return null;
     }
@@ -49,15 +49,17 @@ export async function getConvocatoriaDetalle(bdns: string, jobName: string, runI
 
 /**
  * Guarda el detalle de una convocatoria y todas sus relaciones en la base de datos.
+ * Retorna los documentos procesados para que puedan ser almacenados posteriormente.
  */
-export async function processAndSaveDetalle(detalle: any, jobName: string, runId: string): Promise<string> {
+export async function processAndSaveDetalle(detalle: any, jobName: string, runId: string): Promise<{ hash: string; documentos: any[] }> {
     const logMeta = { jobName, runId, catalogName: 'Convocatorias', convocatoriaId: detalle.id };
     const startItem = Date.now();
     
     // Calcular el hash del contenido
     const newHash = computeContentHash(detalle);
+    let documentosProcesados: any[] = [];
     
-    // La transacción tiene un timeout de 15 segundos para manejar operaciones complejas
+    // La transacción tiene un timeout de 120 segundos para manejar operaciones complejas
     await db.$transaction(async (tx) => {
         // Usar cache en lugar de consultas a BD
         const finalidad = detalle.descripcionFinalidad ? getCachedFinalidad(detalle.descripcionFinalidad) : null;
@@ -128,18 +130,8 @@ export async function processAndSaveDetalle(detalle: any, jobName: string, runId
                 skipDuplicates: true,
             });
 
-            // Después de crear/actualizar los documentos, descargar y almacenar en Supabase Storage
-            for (const doc of detalle.documentos) {
-                try {
-                    const { storagePath, publicUrl } = await fetchAndStoreDocument(detalle.codigoBDNS, doc.id);
-                    await tx.documento.update({
-                        where: { idOficial: doc.id },
-                        data: { storagePath, storageUrl: publicUrl },
-                    });
-                } catch (e: any) {
-                    logger.error('Error subiendo documento al bucket', e, { bdns: detalle.codigoBDNS, docId: doc.id });
-                }
-            }
+            // Guardar los documentos procesados para retornarlos
+            documentosProcesados = detalle.documentos;
         }
         if (detalle.anuncios?.length > 0) {
             await tx.anuncio.deleteMany({ where: { convocatoriaId: convocatoria.id } });
@@ -196,14 +188,14 @@ export async function processAndSaveDetalle(detalle: any, jobName: string, runId
             },
         });
     }, {
-      timeout: 60000, // 60 segundos
+      timeout: 120000, // 120 segundos (aumentado de 60)
     });
     
     const duration = Date.now() - startItem;
     metrics.histogram('etl.items.processed.duration_ms', duration);
-    logger.info('Convocatoria procesada exitosamente', { ...logMeta, durationMs: duration });
+    logger.info('Convocatoria procesada exitosamente', { ...logMeta, durationMs: duration, documentosCount: documentosProcesados.length });
 
-    return newHash;
+    return { hash: newHash, documentos: documentosProcesados };
 }
 
 /**
@@ -211,7 +203,7 @@ export async function processAndSaveDetalle(detalle: any, jobName: string, runId
  */
 export function hasConvocatoriaChanged(detalle: any): boolean {
     const newHash = computeContentHash(detalle);
-    const oldHash = existingConvocatoriasCache.get(detalle.id) || '';
+    const oldHash = existingConvocatoriasCache.get(Number(detalle.id)) || '';
     return oldHash !== newHash;
 }
 
@@ -219,21 +211,21 @@ export function hasConvocatoriaChanged(detalle: any): boolean {
  * Verifica si una convocatoria existe en el cache (ya ha sido procesada antes).
  */
 export function convocatoriaExistsInCache(detalle: any): boolean {
-    return existingConvocatoriasCache.has(detalle.id);
+    return existingConvocatoriasCache.has(Number(detalle.id));
 }
 
 /**
  * Obtiene el hash almacenado de una convocatoria (retorna string vacío si no existe).
  */
 export function getStoredConvocatoriaHash(detalle: any): string {
-    return existingConvocatoriasCache.get(detalle.id) || '';
+    return existingConvocatoriasCache.get(Number(detalle.id)) || '';
 }
 
 /**
  * Actualiza el cache local con el nuevo hash de una convocatoria procesada.
  */
 export function updateConvocatoriaCache(detalle: any, processedHash: string): void {
-    existingConvocatoriasCache.set(detalle.id, processedHash);
+    existingConvocatoriasCache.set(Number(detalle.id), processedHash);
 }
 
 /**
@@ -246,8 +238,8 @@ export function getConvocatoriaStatus(detalle: any): {
     currentHash: string;
     skipReason?: string;
 } {
-    const exists = existingConvocatoriasCache.has(detalle.id);
-    const storedHash = existingConvocatoriasCache.get(detalle.id) || '';
+    const exists = existingConvocatoriasCache.has(Number(detalle.id));
+    const storedHash = existingConvocatoriasCache.get(Number(detalle.id)) || '';
     const currentHash = computeContentHash(detalle);
     const hasChanged = storedHash !== currentHash;
     
@@ -263,4 +255,43 @@ export function getConvocatoriaStatus(detalle: any): {
         currentHash,
         skipReason
     };
+}
+
+/**
+ * Obtiene una página de la lista de convocatorias.
+ */
+export async function getConvocatoriasPage(page: number, pageSize: number, jobName: string, runId: string): Promise<any> {
+    const url = new URL(`${SNPSAP_API_BASE_URL}/convocatorias/busqueda`);
+    url.searchParams.append("vpd", PORTAL);
+    url.searchParams.append("page", String(page));
+    url.searchParams.append("pageSize", String(pageSize));
+    url.searchParams.append("order", "fechaRecepcion");
+    url.searchParams.append("direccion", "desc");
+    
+    // Filtro para convocatorias desde junio de 2025
+    url.searchParams.append("fechaDesde", "01/06/2025");
+
+    const logMeta = { jobName, runId, catalogName: 'Convocatorias', page, pageSize, fechaDesde: "01/06/2025" };
+    logger.info(`Pidiendo página ${page} de convocatorias (desde 01/06/2025)...`, logMeta);
+    metrics.increment('etl.pages.fetched');
+
+    try {
+        const response = await fetch(url.toString(), { headers: { 'Accept': 'application/json' } });
+        if (!response.ok) {
+            logger.warn(`Fallo fetching página ${page} de convocatorias`, { ...logMeta, status: response.status });
+            metrics.increment('etl.pages.failed');
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        logger.info(`Página ${page} de convocatorias recibida`, { ...logMeta, count: data.content?.length || 0 });
+        metrics.gauge('etl.pages.item_count', data.content?.length || 0);
+        
+        return data;
+
+    } catch (error: unknown) {
+        logger.error(`Excepción de red al obtener página ${page} de convocatorias`, error as Error, logMeta);
+        metrics.increment('etl.pages.failed');
+        throw error;
+    }
 } 
