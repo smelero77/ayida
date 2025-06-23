@@ -115,7 +115,7 @@ export const processConvocatoriaBatch = inngest.createFunction(
     id: "process-convocatoria-batch",
     name: "Procesar Lote de Convocatorias",
     concurrency: {
-      limit: 8, // Concurrencia segura para el plan gratuito de Supabase
+      limit: 2, // Mantenemos la concurrencia baja como se recomendó anteriormente
     },
     retries: 3,
   },
@@ -124,35 +124,55 @@ export const processConvocatoriaBatch = inngest.createFunction(
     const { convocatorias, batch_index, total_batches, total_convocatorias } = event.data;
     logger.info(`📦 Procesando lote ${batch_index}/${total_batches} (${convocatorias.length} convocatorias)`);
 
+    // 1. Array para acumular todos los eventos de documentos del lote
+    const allDocEvents: Array<{
+      name: string;
+      data: {
+        bdns: string;
+        docId: number;
+      };
+    }> = [];
+
     for (const convo of convocatorias) {
-      // resiliencia a nivel de item individual dentro del lote
-      await step.run(`process-item-${convo.bdns}`, async () => {
+      // 2. Ejecutar el procesamiento de cada item y OBTENER el resultado
+      const result = await step.run(`process-item-${convo.bdns}`, async () => {
         if (!convo.bdns) {
           throw new Error(`BDNS no válido para convocatoria: ${convo.titulo}`);
         }
         
         const detalle = await getConvocatoriaDetalle(convo.bdns, 'inngest-batch', event.id || 'unknown');
-        if (!detalle) throw new Error(`No se encontró detalle para BDNS ${convo.bdns}`);
+        if (!detalle) {
+          // Si no hay detalle, retornamos un objeto vacío para evitar errores
+          return { documentos: [], bdns: convo.bdns };
+        }
 
         const { hash, documentos } = await processAndSaveDetalle(detalle, 'inngest-batch', event.id || 'unknown');
         updateConvocatoriaCache(detalle, hash);
 
-        const docEvents = documentos.map((doc: any) => ({
+        // Retornamos los datos necesarios para el siguiente paso
+        return { documentos, bdns: detalle.codigoBDNS || convo.bdns };
+      });
+
+      // 3. Construir los eventos a partir del resultado y añadirlos al array
+      if (result && result.documentos.length > 0) {
+        const docEvents = result.documentos.map((doc: any) => ({
           name: "app/document.process.storage",
           data: {
-            bdns: detalle.codigoBDNS || convo.bdns,
+            bdns: result.bdns,
             docId: doc.id,
           },
         }));
+        allDocEvents.push(...docEvents);
+      }
+    }
 
-        if (docEvents.length > 0) {
-          await step.sendEvent("fan-out-documents-from-batch", docEvents);
-        }
-      });
+    // 4. Enviar TODOS los eventos de documentos del lote en un solo paso, FUERA del bucle
+    if (allDocEvents.length > 0) {
+      await step.sendEvent("fan-out-all-documents-for-batch", allDocEvents);
     }
 
     logger.info(`✅ Lote ${batch_index}/${total_batches} completado`);
-    return { processedCount: convocatorias.length };
+    return { processedCount: convocatorias.length, documentsEnqueued: allDocEvents.length };
   }
 );
 
@@ -165,7 +185,7 @@ export const processDocumentStorage = inngest.createFunction(
     id: "process-document-storage", 
     name: "Almacenar Documento PDF", 
     retries: 4, 
-    concurrency: { limit: 10 } 
+    concurrency: { limit: 5 } 
   },
   { event: "app/document.process.storage" },
   async ({ event, step, logger }) => {

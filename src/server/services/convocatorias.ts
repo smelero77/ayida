@@ -49,75 +49,97 @@ export async function getConvocatoriaDetalle(bdns: string, jobName: string, runI
 
 /**
  * Guarda el detalle de una convocatoria y todas sus relaciones en la base de datos.
+ * Versión refactorizada definitiva con transacciones atómicas y paralelización.
  * Retorna los documentos procesados para que puedan ser almacenados posteriormente.
  */
 export async function processAndSaveDetalle(detalle: any, jobName: string, runId: string): Promise<{ hash: string; documentos: any[] }> {
     const logMeta = { jobName, runId, catalogName: 'Convocatorias', convocatoriaId: detalle.id };
     const startItem = Date.now();
     
-    // Calcular el hash del contenido
     const newHash = computeContentHash(detalle);
-    let documentosProcesados: any[] = [];
     
-    // La transacción tiene un timeout de 120 segundos para manejar operaciones complejas
-    await db.$transaction(async (tx) => {
-        // Usar cache en lugar de consultas a BD
-        const finalidad = detalle.descripcionFinalidad ? getCachedFinalidad(detalle.descripcionFinalidad) : null;
-        const reglamento = detalle.reglamento?.autorizacion ? getCachedReglamento(detalle.reglamento.autorizacion) : null;
+    // --- PASO 1: PREPARAR DATOS (FUERA DE CUALQUIER TRANSACCIÓN) ---
+    // Pre-calculamos todo lo que podamos para minimizar el tiempo en transacciones
+    const finalidad = detalle.descripcionFinalidad ? getCachedFinalidad(detalle.descripcionFinalidad) : null;
+    const reglamento = detalle.reglamento?.autorizacion ? getCachedReglamento(detalle.reglamento.autorizacion) : null;
+    const tiposBeneficiarioIds = getCachedTiposBeneficiario((detalle.tiposBeneficiarios || []).map((t: any) => t.id).filter(Boolean));
+    const instrumentosIds = getCachedInstrumentos((detalle.instrumentos || []).map((i: any) => i.id).filter(Boolean));
+    const regionesIds = getCachedRegiones((detalle.regiones || []).map((r: any) => r.id).filter(Boolean));
+    const fondosIds = getCachedFondos((detalle.fondos || []).map((f: any) => f.descripcion));
+    const sectoresIds = getCachedSectores((detalle.sectores || []).map((s: any) => s.codigo).filter(Boolean));
 
-        // PASO 1: Crear o actualizar la convocatoria principal
-        const convocatoria = await tx.convocatoria.upsert({
-            where: { idOficial: detalle.id },
-            update: {
-                titulo: detalle.descripcion,
-                tituloCooficial: detalle.descripcionLeng,
-                descripcion: detalle.descripcionBasesReguladoras,
-                presupuestoTotal: detalle.presupuestoTotal,
-                urlBasesReguladoras: detalle.urlBasesReguladoras,
-                sedeElectronica: detalle.sedeElectronica,
-                fechaPublicacion: new Date(detalle.fechaPublicacion ?? detalle.fechaRecepcion),
-                fechaInicioSolicitud: detalle.fechaInicioSolicitud ? new Date(detalle.fechaInicioSolicitud) : null,
-                fechaFinSolicitud: detalle.fechaFinSolicitud ? new Date(detalle.fechaFinSolicitud) : null,
-                plazoAbierto: detalle.abierto,
-                mrr: detalle.mrr,
-                finalidadId: finalidad?.idOficial,
-                reglamentoId: reglamento?.idOficial,
-                tipoConvocatoria: detalle.tipoConvocatoria,
-                descripcionBasesReguladoras: detalle.descripcionBasesReguladoras,
-                sePublicaDiarioOficial: detalle.sePublicaDiarioOficial,
-                textInicioSolicitud: detalle.textInicio,
-                ayudaEstadoSANumber: detalle.ayudaEstado,
-                ayudaEstadoUrl: detalle.urlAyudaEstado,
-            },
-            create: {
-                idOficial: detalle.id,
-                codigoBDNS: detalle.codigoBDNS,
-                titulo: detalle.descripcion,
-                tituloCooficial: detalle.descripcionLeng,
-                descripcion: detalle.descripcionBasesReguladoras,
-                presupuestoTotal: detalle.presupuestoTotal,
-                urlBasesReguladoras: detalle.urlBasesReguladoras,
-                sedeElectronica: detalle.sedeElectronica,
-                fechaPublicacion: new Date(detalle.fechaPublicacion ?? detalle.fechaRecepcion),
-                fechaInicioSolicitud: detalle.fechaInicioSolicitud ? new Date(detalle.fechaInicioSolicitud) : null,
-                fechaFinSolicitud: detalle.fechaFinSolicitud ? new Date(detalle.fechaFinSolicitud) : null,
-                plazoAbierto: detalle.abierto,
-                mrr: detalle.mrr,
-                finalidadId: finalidad?.idOficial,
-                reglamentoId: reglamento?.idOficial,
-                tipoConvocatoria: detalle.tipoConvocatoria,
-                descripcionBasesReguladoras: detalle.descripcionBasesReguladoras,
-                sePublicaDiarioOficial: detalle.sePublicaDiarioOficial,
-                textInicioSolicitud: detalle.textInicio,
-                ayudaEstadoSANumber: detalle.ayudaEstado,
-                ayudaEstadoUrl: detalle.urlAyudaEstado,
-            },
-        });
+    // --- PASO 2: UPSERT PRINCIPAL CON RELACIONES M-M ANIDADAS ---
+    // Transacción muy corta y atómica para el objeto principal con nested writes
+    const convocatoria = await db.convocatoria.upsert({
+        where: { idOficial: detalle.id },
+        create: {
+            idOficial: detalle.id,
+            codigoBDNS: detalle.codigoBDNS,
+            titulo: detalle.descripcion,
+            tituloCooficial: detalle.descripcionLeng,
+            descripcion: detalle.descripcionBasesReguladoras,
+            presupuestoTotal: detalle.presupuestoTotal,
+            urlBasesReguladoras: detalle.urlBasesReguladoras,
+            sedeElectronica: detalle.sedeElectronica,
+            fechaPublicacion: new Date(detalle.fechaPublicacion ?? detalle.fechaRecepcion),
+            fechaInicioSolicitud: detalle.fechaInicioSolicitud ? new Date(detalle.fechaInicioSolicitud) : null,
+            fechaFinSolicitud: detalle.fechaFinSolicitud ? new Date(detalle.fechaFinSolicitud) : null,
+            plazoAbierto: detalle.abierto,
+            mrr: detalle.mrr,
+            finalidadId: finalidad?.idOficial,
+            reglamentoId: reglamento?.idOficial,
+            tipoConvocatoria: detalle.tipoConvocatoria,
+            descripcionBasesReguladoras: detalle.descripcionBasesReguladoras,
+            sePublicaDiarioOficial: detalle.sePublicaDiarioOficial,
+            textInicioSolicitud: detalle.textInicio,
+            ayudaEstadoSANumber: detalle.ayudaEstado,
+            ayudaEstadoUrl: detalle.urlAyudaEstado,
+            // Nested writes para relaciones M-M
+            tiposBeneficiario: { connect: tiposBeneficiarioIds.map(t => ({ id: t.id })) },
+            instrumentosAyuda: { connect: instrumentosIds.map(i => ({ id: i.id })) },
+            regionesDeImpacto: { connect: regionesIds.map(r => ({ id: r.id })) },
+            fondosEuropeos: { connect: fondosIds.map(f => ({ id: f.id })) },
+            sectoresEconomicos: { connect: sectoresIds.map(s => ({ id: s.id })) },
+        },
+        update: {
+            titulo: detalle.descripcion,
+            tituloCooficial: detalle.descripcionLeng,
+            descripcion: detalle.descripcionBasesReguladoras,
+            presupuestoTotal: detalle.presupuestoTotal,
+            urlBasesReguladoras: detalle.urlBasesReguladoras,
+            sedeElectronica: detalle.sedeElectronica,
+            fechaPublicacion: new Date(detalle.fechaPublicacion ?? detalle.fechaRecepcion),
+            fechaInicioSolicitud: detalle.fechaInicioSolicitud ? new Date(detalle.fechaInicioSolicitud) : null,
+            fechaFinSolicitud: detalle.fechaFinSolicitud ? new Date(detalle.fechaFinSolicitud) : null,
+            plazoAbierto: detalle.abierto,
+            mrr: detalle.mrr,
+            finalidadId: finalidad?.idOficial,
+            reglamentoId: reglamento?.idOficial,
+            tipoConvocatoria: detalle.tipoConvocatoria,
+            descripcionBasesReguladoras: detalle.descripcionBasesReguladoras,
+            sePublicaDiarioOficial: detalle.sePublicaDiarioOficial,
+            textInicioSolicitud: detalle.textInicio,
+            ayudaEstadoSANumber: detalle.ayudaEstado,
+            ayudaEstadoUrl: detalle.urlAyudaEstado,
+            // Nested writes para relaciones M-M
+            tiposBeneficiario: { set: tiposBeneficiarioIds.map(t => ({ id: t.id })) },
+            instrumentosAyuda: { set: instrumentosIds.map(i => ({ id: i.id })) },
+            regionesDeImpacto: { set: regionesIds.map(r => ({ id: r.id })) },
+            fondosEuropeos: { set: fondosIds.map(f => ({ id: f.id })) },
+            sectoresEconomicos: { set: sectoresIds.map(s => ({ id: s.id })) },
+        },
+    });
 
-        // PASO 2: Sincronizar relaciones anidadas (1 a N) - Borrar y crear
-        if (detalle.documentos?.length > 0) {
-            await tx.documento.deleteMany({ where: { convocatoriaId: convocatoria.id } });
-            await tx.documento.createMany({
+    // --- PASO 3: SINCRONIZAR RELACIONES 1-N EN PARALELO ---
+    // Creamos un array de promesas, donde cada una es una mini-transacción atómica
+    const syncTasks: Promise<any>[] = [];
+    const syncTaskNames: string[] = [];
+
+    if (detalle.documentos?.length > 0) {
+        syncTaskNames.push('documentos');
+        syncTasks.push(db.$transaction([
+            db.documento.deleteMany({ where: { convocatoriaId: convocatoria.id } }),
+            db.documento.createMany({
                 data: detalle.documentos.map((doc: any) => ({
                     idOficial: doc.id,
                     nombreFic: doc.nombreFic,
@@ -128,14 +150,15 @@ export async function processAndSaveDetalle(detalle: any, jobName: string, runId
                     convocatoriaId: convocatoria.id,
                 })),
                 skipDuplicates: true,
-            });
-
-            // Guardar los documentos procesados para retornarlos
-            documentosProcesados = detalle.documentos;
-        }
-        if (detalle.anuncios?.length > 0) {
-            await tx.anuncio.deleteMany({ where: { convocatoriaId: convocatoria.id } });
-            await tx.anuncio.createMany({
+            })
+        ]));
+    }
+    
+    if (detalle.anuncios?.length > 0) {
+        syncTaskNames.push('anuncios');
+        syncTasks.push(db.$transaction([
+            db.anuncio.deleteMany({ where: { convocatoriaId: convocatoria.id } }),
+            db.anuncio.createMany({
                 data: detalle.anuncios.map((an: any) => ({
                     numAnuncio: an.numAnuncio,
                     titulo: an.titulo,
@@ -148,52 +171,66 @@ export async function processAndSaveDetalle(detalle: any, jobName: string, runId
                     convocatoriaId: convocatoria.id,
                 })),
                 skipDuplicates: true,
-            });
-        }
-        if (detalle.objetivos?.length > 0) {
-            await tx.objetivo.deleteMany({ where: { convocatoriaId: convocatoria.id } });
-            await tx.objetivo.createMany({
+            })
+        ]));
+    }
+
+    if (detalle.objetivos?.length > 0) {
+        syncTaskNames.push('objetivos');
+        syncTasks.push(db.$transaction([
+            db.objetivo.deleteMany({ where: { convocatoriaId: convocatoria.id } }),
+            db.objetivo.createMany({
                 data: detalle.objetivos.map((obj: any) => ({
                     descripcion: obj.descripcion,
                     convocatoriaId: convocatoria.id,
                 })),
                 skipDuplicates: true,
-            });
+            })
+        ]));
+    }
+    
+    // Ejecutamos todas las sincronizaciones de relaciones 1-N en paralelo
+    // Usamos Promise.allSettled para inspección detallada, pero luego lanzamos error si hay fallos
+    const syncResults = await Promise.allSettled(syncTasks);
+    const documentosProcesados = detalle.documentos || [];
+
+    // --- NUEVA LÓGICA DE MANEJO DE ERRORES ---
+    const failedTasks: { name: string, reason: any }[] = [];
+    syncResults.forEach((result, index) => {
+        if (result.status === 'rejected') {
+            const taskName = syncTaskNames[index] ?? 'unknown_task';
+            failedTasks.push({ name: taskName, reason: result.reason });
         }
+    });
 
-        // PASO 3: Enlazar relaciones muchos a muchos usando cache
-        const tiposBeneficiarioIds = getCachedTiposBeneficiario((detalle.tiposBeneficiarios || []).map((t: any) => t.id).filter(Boolean));
-        const instrumentosIds = getCachedInstrumentos((detalle.instrumentos || []).map((i: any) => i.id).filter(Boolean));
-        const regionesIds = getCachedRegiones((detalle.regiones || []).map((r: any) => r.id).filter(Boolean));
-        const fondosIds = getCachedFondos((detalle.fondos || []).map((f: any) => f.descripcion));
-        const sectoresIds = getCachedSectores((detalle.sectores || []).map((s: any) => s.codigo).filter(Boolean));
+    // Si CUALQUIER tarea falló, loggeamos el detalle y LANZAMOS UN ERROR
+    if (failedTasks.length > 0) {
+        const failedTaskNames = failedTasks.map(f => f.name).join(', ');
+        const error = new Error(`Fallaron sub-tareas de sincronización para convocatoria ${detalle.id}: ${failedTaskNames}`);
+        logger.error(`Fallaron sub-tareas de sincronización para convocatoria ${detalle.id}: ${failedTaskNames}. Inngest reintentará el step.`, error, logMeta);
         
-        await tx.convocatoria.update({
-            where: { id: convocatoria.id },
-            data: {
-                tiposBeneficiario: { set: tiposBeneficiarioIds },
-                instrumentosAyuda: { set: instrumentosIds },
-                regionesDeImpacto: { set: regionesIds },
-                fondosEuropeos: { set: fondosIds },
-                sectoresEconomicos: { set: sectoresIds },
-            },
-        });
+        // ¡Este throw es la clave! Le dice a Inngest que el step ha fallado.
+        throw error;
+    }
 
-        // Actualizar el hash del contenido y la fecha de sincronización
-        await tx.convocatoria.update({
-            where: { idOficial: detalle.id },
-            data: {
-                contentHash: newHash,
-                lastSyncedAt: new Date(),
-            },
-        });
-    }, {
-      timeout: 120000, // 120 segundos (aumentado de 60)
+    // --- PASO 4: ACTUALIZACIÓN FINAL ---
+    // Una operación final y rápida para actualizar el estado de la sincronización
+    await db.convocatoria.update({
+        where: { id: convocatoria.id },
+        data: {
+            contentHash: newHash,
+            lastSyncedAt: new Date(),
+        },
     });
     
     const duration = Date.now() - startItem;
     metrics.histogram('etl.items.processed.duration_ms', duration);
-    logger.info('Convocatoria procesada exitosamente', { ...logMeta, durationMs: duration, documentosCount: documentosProcesados.length });
+    logger.info('Convocatoria y todas sus relaciones procesadas exitosamente.', { 
+        ...logMeta, 
+        durationMs: duration, 
+        documentosCount: documentosProcesados.length,
+        syncTasksCount: syncTasks.length
+    });
 
     return { hash: newHash, documentos: documentosProcesados };
 }
