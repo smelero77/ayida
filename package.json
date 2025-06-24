@@ -62,10 +62,9 @@
     "@trpc/server": "^11.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.18.1",
+    "framer-motion": "^12.19.1",
     "inngest": "^3.39.2",
     "lucide-react": "^0.522.0",
-    "motion": "^12.18.1",
     "next": "^15.2.3",
     "next-auth": "5.0.0-beta.25",
     "node-fetch": "^3.3.2",
@@ -77,6 +76,7 @@
     "server-only": "^0.0.1",
     "superjson": "^2.2.1",
     "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.2"
   },
   "devDependencies": {

@@ -1,196 +1,369 @@
-
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+"use client";
+import { useState, useEffect } from 'react';
 
 interface Region {
   id: string;
   name: string;
-  grants: number;
   path: string;
-  centerX: number;
-  centerY: number;
+  center: { x: number; y: number };
+  ayudas: number;
 }
 
-const SpainMap = () => {
+interface MapEvent {
+  type: 'apertura' | 'concesion' | 'solicitud';
+  region: string;
+  title: string;
+  amount?: string;
+}
+
+const regions: Region[] = [
+  {
+    id: 'madrid',
+    name: 'Madrid',
+    path: 'M300,180 L320,180 L320,200 L300,200 Z',
+    center: { x: 310, y: 190 },
+    ayudas: 1247
+  },
+  {
+    id: 'barcelona',
+    name: 'Barcelona',
+    path: 'M380,150 L400,150 L400,170 L380,170 Z',
+    center: { x: 390, y: 160 },
+    ayudas: 892
+  },
+  {
+    id: 'sevilla',
+    name: 'Sevilla',
+    path: 'M250,280 L270,280 L270,300 L250,300 Z',
+    center: { x: 260, y: 290 },
+    ayudas: 634
+  },
+  {
+    id: 'valencia',
+    name: 'Valencia',
+    path: 'M350,200 L370,200 L370,220 L350,220 Z',
+    center: { x: 360, y: 210 },
+    ayudas: 567
+  },
+  {
+    id: 'bilbao',
+    name: 'Bilbao',
+    path: 'M280,100 L300,100 L300,120 L280,120 Z',
+    center: { x: 290, y: 110 },
+    ayudas: 423
+  },
+];
+
+const mapEvents: MapEvent[] = [
+  { type: 'apertura', region: 'Madrid', title: 'Nueva convocatoria I+D+i', amount: '2.5M€' },
+  { type: 'concesion', region: 'Barcelona', title: 'Concedida ayuda digitalización', amount: '150K€' },
+  { type: 'solicitud', region: 'Valencia', title: 'Solicitud energías renovables' },
+  { type: 'apertura', region: 'Sevilla', title: 'Ayuda emprendimiento rural', amount: '500K€' },
+  { type: 'concesion', region: 'Bilbao', title: 'Proyecto industria 4.0', amount: '1.2M€' },
+];
+
+export default function SpainMap() {
   const [activeRegion, setActiveRegion] = useState<string | null>(null);
+  const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
+  const [currentEvent, setCurrentEvent] = useState<MapEvent | null>(null);
+  const [eventHistory, setEventHistory] = useState<MapEvent[]>([]);
+  const [mounted, setMounted] = useState(false);
 
-  const regions: Region[] = [
-    {
-      id: 'madrid',
-      name: 'Madrid',
-      grants: 89,
-      path: 'M300,250 L320,240 L340,250 L350,270 L340,290 L320,300 L300,290 L290,270 Z',
-      centerX: 320,
-      centerY: 270
-    },
-    {
-      id: 'cataluna',
-      name: 'Cataluña',
-      grants: 76,
-      path: 'M380,180 L420,170 L450,180 L460,210 L450,240 L420,250 L380,240 L370,210 Z',
-      centerX: 415,
-      centerY: 210
-    },
-    {
-      id: 'andalucia',
-      name: 'Andalucía',
-      grants: 92,
-      path: 'M200,380 L280,370 L360,380 L370,420 L360,460 L280,470 L200,460 L190,420 Z',
-      centerX: 280,
-      centerY: 420
-    },
-    {
-      id: 'valencia',
-      name: 'Valencia',
-      grants: 54,
-      path: 'M360,240 L400,230 L420,260 L410,300 L380,310 L360,280 Z',
-      centerX: 390,
-      centerY: 270
-    },
-    {
-      id: 'pais-vasco',
-      name: 'País Vasco',
-      grants: 43,
-      path: 'M180,120 L220,110 L240,130 L230,150 L200,160 L180,140 Z',
-      centerX: 210,
-      centerY: 135
-    },
-    {
-      id: 'galicia',
-      name: 'Galicia',
-      grants: 38,
-      path: 'M80,140 L120,130 L140,150 L130,180 L100,190 L80,170 Z',
-      centerX: 110,
-      centerY: 160
-    },
-    {
-      id: 'navarra',
-      name: 'Navarra',
-      grants: 28,
-      path: 'M240,130 L270,120 L290,140 L280,160 L250,170 L240,150 Z',
-      centerX: 265,
-      centerY: 145
-    },
-    {
-      id: 'castilla-leon',
-      name: 'Castilla y León',
-      grants: 45,
-      path: 'M160,180 L260,170 L300,200 L290,230 L200,240 L160,210 Z',
-      centerX: 230,
-      centerY: 205
-    }
-  ];
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const handleRegionClick = (regionName: string) => {
-    window.location.href = `/convocatorias?region=${regionName.toLowerCase()}`;
+  useEffect(() => {
+    if (!mounted) return;
+
+    const interval = setInterval(() => {
+      const randomIndex = Math.floor(Math.random() * mapEvents.length);
+      const randomEvent = mapEvents[randomIndex];
+      if (randomEvent) {
+        setCurrentEvent(randomEvent);
+        setEventHistory(prev => [randomEvent, ...prev.slice(0, 4)]);
+        
+        // Mostrar evento por 3 segundos
+        setTimeout(() => {
+          setCurrentEvent(null);
+        }, 3000);
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [mounted]);
+
+  const handleRegionClick = (regionId: string) => {
+    setActiveRegion(regionId);
+    // Aquí podrías filtrar convocatorias por región
+    console.log(`Filtrar convocatorias para: ${regionId}`);
   };
 
-  return (
-    <div className="relative w-full h-96 bg-gradient-to-br from-slate-900/20 to-blue-900/20 rounded-2xl overflow-hidden border border-white/10 backdrop-blur-sm">
-      {/* Background grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.1)_1px,transparent_1px)] bg-[size:20px_20px]"></div>
-      
-      {/* Glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-zetika-green/5 via-transparent to-zetika-blue/5"></div>
-      
-      <svg
-        viewBox="0 0 500 500"
-        className="w-full h-full"
-        style={{ filter: 'drop-shadow(0 0 20px rgba(59, 130, 246, 0.3))' }}
-      >
-        {/* Spain outline */}
-        <path
-          d="M50,180 Q80,120 140,110 Q200,100 280,105 Q360,110 420,130 Q460,150 480,200 Q490,250 470,300 Q450,350 400,400 Q350,450 280,460 Q200,470 140,450 Q80,430 50,380 Q30,330 40,280 Q45,230 50,180 Z"
-          fill="rgba(59, 130, 246, 0.1)"
-          stroke="rgba(59, 130, 246, 0.3)"
-          strokeWidth="2"
-          className="animate-pulse"
-        />
-        
-        {/* Regions */}
-        {regions.map((region, index) => (
-          <motion.g key={region.id}>
-            <motion.path
-              d={region.path}
-              fill={activeRegion === region.id ? '#10b981' : '#3b82f6'}
-              stroke="rgba(255, 255, 255, 0.5)"
-              strokeWidth="1"
-              className="cursor-pointer transition-all duration-300"
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.1 + 0.5, duration: 0.6 }}
-              whileHover={{ scale: 1.1, filter: 'brightness(1.2)' }}
-              onMouseEnter={() => setActiveRegion(region.id)}
-              onMouseLeave={() => setActiveRegion(null)}
-              onClick={() => handleRegionClick(region.name)}
-              style={{
-                filter: activeRegion === region.id 
-                  ? 'drop-shadow(0 0 15px rgba(16, 185, 129, 0.8))' 
-                  : 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.4))'
-              }}
-            />
-            
-            {/* Animated dots */}
-            <motion.circle
-              cx={region.centerX}
-              cy={region.centerY}
-              r="3"
-              fill="white"
-              className="animate-pulse"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: index * 0.1 + 0.8 }}
-            />
-          </motion.g>
-        ))}
-        
-        {/* Floating particles */}
-        {[...Array(8)].map((_, i) => (
-          <motion.circle
-            key={i}
-            cx={100 + i * 50}
-            cy={100 + Math.sin(i) * 100}
-            r="1"
-            fill="rgba(59, 130, 246, 0.6)"
-            animate={{
-              y: [0, -10, 0],
-              opacity: [0.3, 1, 0.3]
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              delay: i * 0.5
-            }}
-          />
-        ))}
-      </svg>
-      
-      {/* Tooltip */}
-      {activeRegion && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="absolute top-4 right-4 bg-black/80 backdrop-blur-xl border border-white/20 rounded-xl p-4 text-white"
-        >
-          <div className="font-sora font-bold text-lg text-zetika-green">
-            {regions.find(r => r.id === activeRegion)?.name}
-          </div>
-          <div className="text-sm text-gray-300">
-            {regions.find(r => r.id === activeRegion)?.grants} ayudas activas
-          </div>
-          <div className="text-xs text-zetika-green/80 mt-1">
-            Click para ver detalles
-          </div>
-        </motion.div>
-      )}
-      
-      {/* Tech overlay */}
-      <div className="absolute bottom-4 left-4 flex items-center gap-2 text-zetika-green">
-        <div className="w-2 h-2 bg-zetika-green rounded-full animate-pulse"></div>
-        <span className="text-sm font-inter">Mapa interactivo de España</span>
-      </div>
-    </div>
-  );
-};
+  const getEventColor = (type: string) => {
+    switch (type) {
+      case 'apertura': return '#4ADE80';
+      case 'concesion': return '#22C55E';
+      case 'solicitud': return '#16A34A';
+      default: return '#4ADE80';
+    }
+  };
 
-export default SpainMap;
+  const getEventIcon = (type: string) => {
+    switch (type) {
+      case 'apertura': return '📢';
+      case 'concesion': return '✅';
+      case 'solicitud': return '📝';
+      default: return '📢';
+    }
+  };
+
+  // Renderizado estático durante SSR
+  if (!mounted) {
+    return (
+      <section className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="font-sora font-bold text-3xl md:text-4xl text-[#1E2A38] mb-6">
+              Actividad en Tiempo Real
+            </h2>
+            <p className="font-inter text-xl text-[#6B7280] max-w-3xl mx-auto">
+              Observa cómo se mueven las oportunidades de financiación por toda España
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8 items-start">
+            {/* Mapa estático */}
+            <div className="lg:col-span-2">
+              <div className="relative bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9] rounded-2xl p-8">
+                <svg viewBox="0 0 600 500" className="w-full h-auto">
+                  {/* Contorno simplificado de España */}
+                  <path
+                    d="M50 200 L150 180 L250 160 L350 170 L450 180 L500 200 L520 250 L500 300 L480 350 L450 400 L400 430 L350 450 L300 460 L250 450 L200 440 L150 420 L100 400 L80 350 L60 300 L50 250 Z"
+                    fill="#E2E8F0"
+                    stroke="#CBD5E1"
+                    strokeWidth="2"
+                  />
+                  
+                  {/* Puntos de regiones */}
+                  {regions.map((region) => (
+                    <g key={region.id}>
+                      <circle
+                        cx={region.center.x}
+                        cy={region.center.y}
+                        r="8"
+                        fill="#4ADE80"
+                        className="opacity-80"
+                      />
+                      <circle
+                        cx={region.center.x}
+                        cy={region.center.y}
+                        r="4"
+                        fill="white"
+                      />
+                    </g>
+                  ))}
+                </svg>
+              </div>
+            </div>
+
+            {/* Panel de actividad estático */}
+            <div className="bg-gradient-to-br from-[#1E2A38] to-[#374151] rounded-2xl p-6 text-white">
+              <h3 className="font-sora font-semibold text-xl mb-6">Actividad Reciente</h3>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3 p-3 bg-white/10 rounded-lg">
+                  <div className="w-3 h-3 bg-[#4ADE80] rounded-full mt-1.5 flex-shrink-0"></div>
+                  <div>
+                    <p className="font-inter text-sm">Nueva convocatoria abierta en Madrid</p>
+                    <p className="font-inter text-xs text-gray-300">Hace unos momentos</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="py-20 bg-white">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-16">
+          <h2 className="font-sora font-bold text-[2.5rem] text-[#1E2A38] mb-4">
+            Actividad en <span className="text-[#4ADE80]">tiempo real</span>
+          </h2>
+          <p className="font-inter text-[1.25rem] text-[#6B7280] max-w-3xl mx-auto">
+            Observa cómo se abren, conceden y solicitan ayudas en toda España cada minuto
+          </p>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-12 max-w-6xl mx-auto">
+          {/* Mapa */}
+          <div className="lg:col-span-2">
+            <div className="relative bg-[#F8FAFC] rounded-2xl p-8 border border-[#E5E7EB]">
+              <svg
+                viewBox="0 0 500 400"
+                className="w-full h-auto"
+                style={{ maxHeight: '400px' }}
+              >
+                {/* Fondo del mapa */}
+                <rect width="500" height="400" fill="#F1F5F9" rx="8" />
+                
+                {/* Regiones */}
+                {regions.map((region) => (
+                  <g key={region.id}>
+                    <path
+                      d={region.path}
+                      fill={activeRegion === region.id ? '#4ADE80' : '#E2E8F0'}
+                      stroke="#94A3B8"
+                      strokeWidth="1"
+                      className="cursor-pointer transition-all duration-300 hover:fill-[#4ADE80]/70"
+                      onClick={() => handleRegionClick(region.id)}
+                      onMouseEnter={() => setHoveredRegion(region.id)}
+                      onMouseLeave={() => setHoveredRegion(null)}
+                    />
+                    
+                    {/* Puntos animados */}
+                    <circle
+                      cx={region.center.x}
+                      cy={region.center.y}
+                      r="4"
+                      fill="#4ADE80"
+                      className="animate-pulse"
+                    >
+                      <animate
+                        attributeName="r"
+                        values="4;8;4"
+                        dur="2s"
+                        repeatCount="indefinite"
+                      />
+                      <animate
+                        attributeName="opacity"
+                        values="1;0.5;1"
+                        dur="2s"
+                        repeatCount="indefinite"
+                      />
+                    </circle>
+                  </g>
+                ))}
+                
+                {/* Evento actual */}
+                {currentEvent && (
+                  <g>
+                    {regions
+                      .filter(r => r.name === currentEvent.region)
+                      .map(region => (
+                        <g key={`event-${region.id}`}>
+                          <circle
+                            cx={region.center.x}
+                            cy={region.center.y}
+                            r="12"
+                            fill={getEventColor(currentEvent.type)}
+                            opacity="0.8"
+                          >
+                            <animate
+                              attributeName="r"
+                              values="12;20;12"
+                              dur="1s"
+                              repeatCount="indefinite"
+                            />
+                          </circle>
+                        </g>
+                      ))}
+                  </g>
+                )}
+              </svg>
+              
+              {/* Tooltip */}
+              {hoveredRegion && (
+                <div className="absolute top-4 right-4 bg-white p-4 rounded-lg shadow-lg border border-[#E5E7EB]">
+                  <div className="font-sora font-semibold text-[#1E2A38] mb-1">
+                    {regions.find(r => r.id === hoveredRegion)?.name}
+                  </div>
+                  <div className="font-inter text-sm text-[#6B7280]">
+                    {regions.find(r => r.id === hoveredRegion)?.ayudas} ayudas disponibles
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Panel de actividad */}
+          <div className="space-y-6">
+            {/* Evento actual */}
+            {currentEvent && (
+              <div className="bg-gradient-to-r from-[#4ADE80]/10 to-[#22C55E]/10 p-6 rounded-2xl border border-[#4ADE80]/20">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-2xl">{getEventIcon(currentEvent.type)}</span>
+                  <div>
+                    <div className="font-sora font-semibold text-[#1E2A38] capitalize">
+                      {currentEvent.type}
+                    </div>
+                    <div className="font-inter text-sm text-[#6B7280]">
+                      {currentEvent.region}
+                    </div>
+                  </div>
+                </div>
+                <div className="font-inter text-[#1E2A38] mb-2">
+                  {currentEvent.title}
+                </div>
+                {currentEvent.amount && (
+                  <div className="font-sora font-bold text-[#4ADE80]">
+                    {currentEvent.amount}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Historial de eventos */}
+            <div>
+              <h3 className="font-sora font-semibold text-[#1E2A38] mb-4">
+                Actividad reciente
+              </h3>
+              <div className="space-y-3">
+                {eventHistory.map((event, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 p-3 bg-[#F8FAFC] rounded-lg border border-[#E5E7EB]"
+                    style={{ opacity: 1 - (index * 0.2) }}
+                  >
+                    <span className="text-lg">{getEventIcon(event.type)}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-inter text-sm text-[#1E2A38] truncate">
+                        {event.title}
+                      </div>
+                      <div className="font-inter text-xs text-[#6B7280]">
+                        {event.region} • Hace {index + 1} min
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Estadísticas */}
+            <div className="bg-[#F8FAFC] p-6 rounded-2xl border border-[#E5E7EB]">
+              <h3 className="font-sora font-semibold text-[#1E2A38] mb-4">
+                Últimas 24h
+              </h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="font-inter text-[#6B7280]">Nuevas convocatorias</span>
+                  <span className="font-sora font-bold text-[#4ADE80]">47</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-inter text-[#6B7280]">Ayudas concedidas</span>
+                  <span className="font-sora font-bold text-[#22C55E]">23</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-inter text-[#6B7280]">Solicitudes</span>
+                  <span className="font-sora font-bold text-[#16A34A]">189</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
