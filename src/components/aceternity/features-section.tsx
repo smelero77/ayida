@@ -11,6 +11,7 @@ import {
   Target,
   Award
 } from "lucide-react";
+import { fadeInUp, staggerContainer } from "@/lib/animations";
 
 const features = [
   {
@@ -73,9 +74,9 @@ export default function FeaturesSection() {
         <motion.div
           ref={ref}
           className="text-center max-w-3xl mx-auto mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
+          initial="initial"
+          animate={isInView ? "animate" : "initial"}
+          variants={fadeInUp}
         >
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
             ¿Por qué elegir{" "}
@@ -88,18 +89,21 @@ export default function FeaturesSection() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          variants={staggerContainer}
+          initial="initial"
+          animate={isInView ? "animate" : "initial"}
+        >
+          {features.map((feature) => (
             <motion.div
               key={feature.title}
               className="group relative"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: index * 0.1 }}
+              variants={fadeInUp}
             >
               <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 group-hover:border-blue-200">
                 {/* Icon */}
-                <div className={`w-16 h-16 rounded-2xl ${colorClasses[feature.color as keyof typeof colorClasses]} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                <div className={`${colorClasses[feature.color as keyof typeof colorClasses]} w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
                   <feature.icon className="w-8 h-8 text-white" />
                 </div>
 
@@ -116,14 +120,14 @@ export default function FeaturesSection() {
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Stats section */}
         <motion.div
           className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          initial="initial"
+          animate={isInView ? "animate" : "initial"}
+          variants={fadeInUp}
         >
           <div className="text-center">
             <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">99.9%</div>

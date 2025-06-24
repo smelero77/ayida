@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { Search, Filter, MapPin, Calendar, Euro } from "lucide-react";
 import { useState } from "react";
+import { fadeInUp, staggerContainer } from "@/lib/animations";
 
 export default function SearchSection() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -44,9 +45,9 @@ export default function SearchSection() {
       <div className="container mx-auto px-4 relative z-10">
         <motion.div
           className="max-w-4xl mx-auto text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          initial="initial"
+          animate="animate"
+          variants={fadeInUp}
         >
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Busca subvenciones
@@ -59,9 +60,10 @@ export default function SearchSection() {
         {/* Search form */}
         <motion.div
           className="max-w-3xl mx-auto"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          initial="initial"
+          animate="animate"
+          variants={fadeInUp}
+          transition={{ delay: 0.2 }}
         >
           <div className="bg-white rounded-2xl shadow-2xl p-6 border border-gray-100">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -135,9 +137,10 @@ export default function SearchSection() {
         {/* Popular searches */}
         <motion.div
           className="mt-12 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          initial="initial"
+          animate="animate"
+          variants={fadeInUp}
+          transition={{ delay: 0.4 }}
         >
           <p className="text-gray-600 mb-4">Búsquedas populares:</p>
           <div className="flex flex-wrap justify-center gap-3">
