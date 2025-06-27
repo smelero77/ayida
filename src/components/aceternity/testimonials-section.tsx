@@ -8,7 +8,7 @@ const testimonials = [
   {
     name: "María García",
     role: "CEO, TechStart",
-    content: "Ayida Portal revolucionó nuestra búsqueda de financiación. Encontramos 3 subvenciones perfectas para nuestro proyecto de IA en solo una semana.",
+    content: "zétika.app revolucionó nuestra búsqueda de financiación. Encontramos 3 subvenciones perfectas para nuestro proyecto de IA en solo una semana.",
     rating: 5,
     avatar: "MG"
   },
@@ -36,7 +36,7 @@ const testimonials = [
   {
     name: "Laura Fernández",
     role: "Directora de Proyectos, EcoInnovate",
-    content: "Gracias a Ayida Portal conseguimos financiación para 5 proyectos diferentes. Es una herramienta indispensable para cualquier empresa.",
+    content: "Gracias a zétika.app conseguimos financiación para 5 proyectos diferentes. Es una herramienta indispensable para cualquier empresa.",
     rating: 5,
     avatar: "LF"
   },
@@ -54,30 +54,30 @@ export default function TestimonialsSection() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <div className="py-20 bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
+    <div className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-grid-black/[0.02] bg-[size:50px_50px]" />
       
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           ref={ref}
-          className="text-center max-w-3xl mx-auto mb-16"
+          className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 lg:mb-20"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 lg:mb-8">
             Lo que dicen nuestros{" "}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               usuarios
             </span>
           </h2>
-          <p className="text-xl text-gray-600">
-            Miles de empresas confían en Ayida Portal para encontrar las mejores oportunidades de financiación
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 px-4 sm:px-6 leading-relaxed">
+            Miles de empresas confían en zétika.app para encontrar las mejores oportunidades de financiación
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial.name}
@@ -91,37 +91,37 @@ export default function TestimonialsSection() {
                 z: 50
               }}
             >
-              <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 group-hover:border-blue-200 relative overflow-hidden">
+              <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 group-hover:border-blue-200 relative overflow-hidden h-full">
                 {/* Quote icon */}
-                <div className="absolute top-4 right-4 text-blue-500/20 group-hover:text-blue-500/40 transition-colors">
-                  <Quote className="w-8 h-8" />
+                <div className="absolute top-3 sm:top-4 right-3 sm:right-4 text-blue-500/20 group-hover:text-blue-500/40 transition-colors">
+                  <Quote className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8" />
                 </div>
 
                 {/* Rating */}
-                <div className="flex gap-1 mb-4">
+                <div className="flex gap-1 mb-3 sm:mb-4 lg:mb-6">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
 
                 {/* Content */}
-                <p className="text-gray-700 leading-relaxed mb-6 text-lg">
+                <p className="text-sm sm:text-base lg:text-lg text-gray-700 leading-relaxed mb-4 sm:mb-6 lg:mb-8">
                   "{testimonial.content}"
                 </p>
 
                 {/* Author */}
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base lg:text-lg">
                     {testimonial.avatar}
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                    <div className="text-gray-600 text-sm">{testimonial.role}</div>
+                    <div className="font-semibold text-gray-900 text-sm sm:text-base lg:text-lg">{testimonial.name}</div>
+                    <div className="text-gray-600 text-xs sm:text-sm lg:text-base">{testimonial.role}</div>
                   </div>
                 </div>
 
                 {/* Hover effect */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
             </motion.div>
           ))}
@@ -129,18 +129,18 @@ export default function TestimonialsSection() {
 
         {/* Overall rating */}
         <motion.div
-          className="mt-16 text-center"
+          className="mt-12 sm:mt-16 lg:mt-20 text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
-          <div className="inline-flex items-center gap-4 bg-white rounded-full px-8 py-4 shadow-lg">
+          <div className="inline-flex flex-col sm:flex-row items-center gap-2 sm:gap-4 bg-white rounded-full px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-5 shadow-lg">
             <div className="flex gap-1">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />
+                <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 fill-yellow-400 text-yellow-400" />
               ))}
             </div>
-            <div className="text-lg font-semibold text-gray-900">
+            <div className="text-sm sm:text-base lg:text-lg font-semibold text-gray-900">
               4.9/5 de más de 10,000 usuarios
             </div>
           </div>
@@ -149,7 +149,7 @@ export default function TestimonialsSection() {
 
       {/* Floating elements */}
       <motion.div
-        className="absolute top-1/3 left-5 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl"
+        className="absolute top-1/3 left-3 sm:left-5 w-16 sm:w-20 lg:w-24 h-16 sm:h-20 lg:h-24 bg-blue-500/10 rounded-full blur-2xl"
         animate={{
           scale: [1, 1.3, 1],
           opacity: [0.2, 0.5, 0.2],
@@ -161,7 +161,7 @@ export default function TestimonialsSection() {
         }}
       />
       <motion.div
-        className="absolute bottom-1/3 right-5 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl"
+        className="absolute bottom-1/3 right-3 sm:right-5 w-20 sm:w-24 lg:w-32 h-20 sm:h-24 lg:h-32 bg-purple-500/10 rounded-full blur-2xl"
         animate={{
           scale: [1.3, 1, 1.3],
           opacity: [0.5, 0.2, 0.5],

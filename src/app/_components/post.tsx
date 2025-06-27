@@ -3,9 +3,11 @@
 import { useState } from "react";
 
 import { api } from "~/trpc/react";
+import { useShowToast, toastMessages } from "@/lib/toast";
 
 export function LatestPost() {
   const [latestPost] = api.post.getLatest.useSuspenseQuery();
+  const showToast = useShowToast();
 
   const utils = api.useUtils();
   const [name, setName] = useState("");
@@ -13,6 +15,10 @@ export function LatestPost() {
     onSuccess: async () => {
       await utils.post.invalidate();
       setName("");
+      showToast.success(toastMessages.crud.createSuccess);
+    },
+    onError: (error) => {
+      showToast.error(toastMessages.crud.createError, error.message);
     },
   });
 

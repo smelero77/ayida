@@ -49,7 +49,7 @@ export default function ModernHeader() {
             transition={{ duration: 0.5 }}
           >
             <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Ayida Portal
+              zétika.app
             </div>
           </motion.div>
 

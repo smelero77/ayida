@@ -4,7 +4,9 @@ import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Menu, X, Zap, ArrowRight } from "lucide-react"
+import { Menu, X, ArrowRight } from "lucide-react"
+import { Logo } from "@/components/ui/logo"
+import { GradientButton } from "@/components/ui/gradient-button"
 
 export const FloatingNav = ({
   navItems,
@@ -69,10 +71,7 @@ export const FloatingNav = ({
           }}
           transition={{ duration: 0.8 }}
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#4ADE80]">
-            <Zap className="h-5 w-5 text-white" />
-          </div>
-          <span className="text-xl font-bold">ZETIKA</span>
+          <Logo isScrolled={scrolled} />
         </motion.div>
 
         <motion.div
@@ -104,13 +103,16 @@ export const FloatingNav = ({
           }}
           transition={{ duration: 0.8 }}
         >
-          <Button variant="ghost" size={scrolled ? "sm" : "default"}>
+          <a 
+            href="/signin" 
+            className="font-rubik font-medium text-base lg:text-[15px] text-[rgb(255,65,90)] hover:text-[rgb(255,65,90)]/70 transition-colors duration-200"
+          >
             Acceder
-          </Button>
-          <Button size={scrolled ? "sm" : "default"} className="rounded-full bg-[#4ADE80] hover:bg-[#22C55E]">
+          </a>
+          <GradientButton size={scrolled ? "sm" : "md"} variant="primary">
             Comenzar Gratis
             <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+          </GradientButton>
         </motion.div>
 
         <Button variant="ghost" size="sm" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -139,13 +141,17 @@ export const FloatingNav = ({
                   </Link>
                 ))}
                 <div className="border-t border-neutral-200 dark:border-neutral-800 pt-4 space-y-2">
-                  <Button variant="ghost" className="w-full justify-start">
+                  <a 
+                    href="/signin" 
+                    className="block w-full text-center font-rubik font-medium text-base lg:text-[15px] text-[rgb(255,65,90)] hover:text-[rgb(255,65,90)]/70 transition-colors duration-200 py-2 px-4 rounded-lg hover:bg-gray-50"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
                     Acceder
-                  </Button>
-                  <Button className="w-full rounded-full bg-[#4ADE80] hover:bg-[#22C55E]">
+                  </a>
+                  <GradientButton variant="primary" className="w-full">
                     Comenzar Gratis
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+                  </GradientButton>
                 </div>
               </div>
             </motion.div>

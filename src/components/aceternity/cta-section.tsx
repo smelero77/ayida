@@ -2,17 +2,18 @@
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle, Zap, Shield } from "lucide-react";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
+import { GradientButton } from "@/components/ui/gradient-button";
 
 export default function CTASection() {
   return (
-    <div className="py-20 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 relative overflow-hidden">
+    <div className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:50px_50px]" />
       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-transparent to-purple-500/20" />
       
       {/* Floating elements */}
       <motion.div
-        className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"
+        className="absolute top-10 left-10 w-24 sm:w-32 lg:w-40 h-24 sm:h-32 lg:h-40 bg-white/10 rounded-full blur-2xl"
         animate={{
           scale: [1, 1.2, 1],
           opacity: [0.3, 0.6, 0.3],
@@ -24,7 +25,7 @@ export default function CTASection() {
         }}
       />
       <motion.div
-        className="absolute bottom-10 right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"
+        className="absolute bottom-10 right-10 w-32 sm:w-40 lg:w-48 h-32 sm:h-40 lg:h-48 bg-white/10 rounded-full blur-2xl"
         animate={{
           scale: [1.2, 1, 1.2],
           opacity: [0.6, 0.3, 0.6],
@@ -36,11 +37,11 @@ export default function CTASection() {
         }}
       />
 
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           {/* Main heading */}
           <motion.h2
-            className="text-4xl md:text-6xl font-bold text-white mb-6"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 sm:mb-6 lg:mb-8"
             initial="initial"
             animate="animate"
             variants={fadeInUp}
@@ -53,7 +54,7 @@ export default function CTASection() {
 
           {/* Subtitle */}
           <motion.p
-            className="text-xl md:text-2xl text-blue-100 mb-12 max-w-2xl mx-auto"
+            className="text-base sm:text-lg md:text-xl lg:text-2xl text-blue-100 mb-6 sm:mb-8 lg:mb-12 max-w-2xl mx-auto px-4 sm:px-6 leading-relaxed"
             initial="initial"
             animate="animate"
             variants={fadeInUp}
@@ -64,55 +65,55 @@ export default function CTASection() {
 
           {/* Features */}
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 lg:mb-12"
             initial="initial"
             animate="animate"
             variants={staggerContainer}
             transition={{ delay: 0.4 }}
           >
             <motion.div 
-              className="flex items-center gap-3 text-white"
+              className="flex items-center gap-2 sm:gap-3 text-white"
               variants={fadeInUp}
             >
-              <CheckCircle className="w-6 h-6 text-green-300 flex-shrink-0" />
-              <span className="text-lg">Acceso a 50,000+ convocatorias</span>
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-300 flex-shrink-0" />
+              <span className="text-sm sm:text-base lg:text-lg">Acceso a 50,000+ convocatorias</span>
             </motion.div>
             <motion.div 
-              className="flex items-center gap-3 text-white"
+              className="flex items-center gap-2 sm:gap-3 text-white"
               variants={fadeInUp}
             >
-              <Zap className="w-6 h-6 text-yellow-300 flex-shrink-0" />
-              <span className="text-lg">Búsquedas en tiempo real</span>
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-yellow-300 flex-shrink-0" />
+              <span className="text-sm sm:text-base lg:text-lg">Búsquedas en tiempo real</span>
             </motion.div>
             <motion.div 
-              className="flex items-center gap-3 text-white"
+              className="flex items-center gap-2 sm:gap-3 text-white"
               variants={fadeInUp}
             >
-              <Shield className="w-6 h-6 text-blue-300 flex-shrink-0" />
-              <span className="text-lg">Verificación automática</span>
+              <Shield className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-300 flex-shrink-0" />
+              <span className="text-sm sm:text-base lg:text-lg">Verificación automática</span>
             </motion.div>
           </motion.div>
 
           {/* CTA Buttons */}
           <motion.div
-            className="flex flex-col sm:flex-row gap-6 justify-center mb-12"
+            className="flex flex-col sm:flex-row gap-4 sm:gap-6 lg:gap-8 justify-center mb-6 sm:mb-8 lg:mb-12"
             initial="initial"
             animate="animate"
             variants={fadeInUp}
             transition={{ delay: 0.6 }}
           >
-            <button className="bg-white text-blue-600 px-8 py-4 rounded-full font-semibold text-lg hover:bg-gray-100 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg">
+            <GradientButton size="lg" variant="primary" className="w-full sm:w-auto touch-target">
               Comenzar Gratis
-              <ArrowRight className="w-5 h-5" />
-            </button>
-            <button className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300">
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+            </GradientButton>
+            <GradientButton size="lg" variant="secondary" className="w-full sm:w-auto touch-target">
               Ver Demo
-            </button>
+            </GradientButton>
           </motion.div>
 
           {/* Trust indicators */}
           <motion.div
-            className="flex flex-wrap justify-center items-center gap-8 text-blue-100"
+            className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 lg:gap-8 text-blue-100 text-xs sm:text-sm lg:text-base"
             initial="initial"
             animate="animate"
             variants={fadeInUp}
@@ -134,18 +135,18 @@ export default function CTASection() {
 
           {/* Social proof */}
           <motion.div
-            className="mt-12 pt-8 border-t border-white/20"
+            className="mt-6 sm:mt-8 lg:mt-12 pt-4 sm:pt-6 lg:pt-8 border-t border-white/20"
             initial="initial"
             animate="animate"
             variants={fadeInUp}
             transition={{ delay: 1 }}
           >
-            <p className="text-blue-100 mb-4">Confían en nosotros:</p>
-            <div className="flex flex-wrap justify-center items-center gap-8 opacity-60">
-              <div className="text-white font-semibold text-lg">TechStart</div>
-              <div className="text-white font-semibold text-lg">GreenEnergy</div>
-              <div className="text-white font-semibold text-lg">BioTech Solutions</div>
-              <div className="text-white font-semibold text-lg">DigitalFactory</div>
+            <p className="text-blue-100 mb-3 sm:mb-4 text-xs sm:text-sm lg:text-base">Confían en nosotros:</p>
+            <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 lg:gap-8 opacity-60">
+              <div className="text-white font-semibold text-xs sm:text-sm lg:text-lg">TechStart</div>
+              <div className="text-white font-semibold text-xs sm:text-sm lg:text-lg">GreenEnergy</div>
+              <div className="text-white font-semibold text-xs sm:text-sm lg:text-lg">BioTech Solutions</div>
+              <div className="text-white font-semibold text-xs sm:text-sm lg:text-lg">DigitalFactory</div>
             </div>
           </motion.div>
         </div>

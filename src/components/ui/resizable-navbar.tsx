@@ -3,6 +3,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { IconMenu2, IconX } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
+import { Logo } from "@/components/ui/logo";
 
 interface NavbarProps {
   children: React.ReactNode;
@@ -160,19 +161,9 @@ export const NavbarLogo = ({ isScrolled }: { isScrolled?: boolean }) => {
   return (
     <a
       href="#hero"
-      className="flex items-center space-x-2"
+      className="flex items-center"
     >
-      <div className="w-8 h-8 bg-[#4ADE80] rounded-lg flex items-center justify-center">
-        <svg className="w-5 h-5 text-[#1E2A38]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-      </div>
-      <span className={cn(
-        "font-sora font-bold text-xl transition-colors duration-200",
-        isScrolled ? "text-white" : "text-white"
-      )}>
-        ZÉTIKA
-      </span>
+      <Logo isScrolled={isScrolled} />
     </a>
   );
 };

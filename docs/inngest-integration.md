@@ -1,4 +1,4 @@
-# Integración de Inngest en Ayida Portal
+# Integración de Inngest en zétika.app
 
 ## Descripción General
 

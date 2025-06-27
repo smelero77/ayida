@@ -1,10 +1,10 @@
 "use client"
 
-import { FloatingNav } from "@/components/floating-navbar"
+import Header from "@/components/Header"
 import HeroSection from "@/components/aceternity/hero-section"
 import FeaturesSection from "@/components/aceternity/features-section"
 import TestimonialsSection from "@/components/aceternity/testimonials-section"
-import PricingSection from "@/components/aceternity/pricing-section"
+import { PricingSection } from "@/components/ui/pricing"
 import CTASection from "@/components/aceternity/cta-section"
 import { Home, Zap, MessageSquare, DollarSign, Users } from "lucide-react"
 
@@ -39,7 +39,7 @@ const navItems = [
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
-      <FloatingNav navItems={navItems} />
+      <Header />
 
       <main>
         <section id="home">
