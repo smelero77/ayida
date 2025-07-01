@@ -91,7 +91,7 @@ const MobileDrawer = ({ navigationItems, isOpen, onClose }: MobileDrawerProps) =
           
           <div className="p-4 sm:p-6 border-t border-gray-100 space-y-3 mt-6">
             <a 
-              href="/signin" 
+              href="/es/signin" 
               className="block w-full text-center font-rubik font-medium text-base lg:text-[15px] text-[rgb(255,65,90)] hover:text-[rgb(255,65,90)]/70 transition-colors duration-200 py-3 px-4 rounded-lg hover:bg-gray-50"
               onClick={onClose}
             >

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 
 interface Region {
   id: string;
@@ -62,7 +62,7 @@ const mapEvents: MapEvent[] = [
   { type: 'concesion', region: 'Bilbao', title: 'Proyecto industria 4.0', amount: '1.2M€' },
 ];
 
-export default function SpainMap() {
+const SpainMap = React.memo(() => {
   const [activeRegion, setActiveRegion] = useState<string | null>(null);
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
   const [currentEvent, setCurrentEvent] = useState<MapEvent | null>(null);
@@ -73,6 +73,33 @@ export default function SpainMap() {
     setMounted(true);
   }, []);
 
+  // Memoize event colors and icons to avoid recalculating
+  const getEventColor = useCallback((type: string) => {
+    switch (type) {
+      case 'apertura': return '#4ADE80';
+      case 'concesion': return '#22C55E';
+      case 'solicitud': return '#16A34A';
+      default: return '#4ADE80';
+    }
+  }, []);
+
+  const getEventIcon = useCallback((type: string) => {
+    switch (type) {
+      case 'apertura': return '📢';
+      case 'concesion': return '✅';
+      case 'solicitud': return '📝';
+      default: return '📢';
+    }
+  }, []);
+
+  // Memoize region click handler
+  const handleRegionClick = useCallback((regionId: string) => {
+    setActiveRegion(regionId);
+    // Aquí podrías filtrar convocatorias por región
+    console.log(`Filtrar convocatorias para: ${regionId}`);
+  }, []);
+
+  // Optimized event generation with reduced frequency
   useEffect(() => {
     if (!mounted) return;
 
@@ -84,38 +111,78 @@ export default function SpainMap() {
         setEventHistory(prev => [randomEvent, ...prev.slice(0, 4)]);
         
         // Mostrar evento por 3 segundos
-        setTimeout(() => {
+        const timeout = setTimeout(() => {
           setCurrentEvent(null);
         }, 3000);
+
+        return () => clearTimeout(timeout);
       }
-    }, 4000);
+    }, 10000); // Increased from 4000ms to 10000ms to reduce CPU usage
 
     return () => clearInterval(interval);
   }, [mounted]);
 
-  const handleRegionClick = (regionId: string) => {
-    setActiveRegion(regionId);
-    // Aquí podrías filtrar convocatorias por región
-    console.log(`Filtrar convocatorias para: ${regionId}`);
-  };
+  // Memoize regions to prevent unnecessary re-renders
+  const regionElements = useMemo(() => regions.map((region) => (
+    <g key={region.id}>
+      <path
+        d={region.path}
+        fill={activeRegion === region.id ? '#4ADE80' : '#E2E8F0'}
+        stroke="#94A3B8"
+        strokeWidth="1"
+        className="cursor-pointer transition-all duration-300 hover:fill-[#4ADE80]/70"
+        onClick={() => handleRegionClick(region.id)}
+        onMouseEnter={() => setHoveredRegion(region.id)}
+        onMouseLeave={() => setHoveredRegion(null)}
+      />
+      
+      {/* Optimized animated dots */}
+      <circle
+        cx={region.center.x}
+        cy={region.center.y}
+        r="4"
+        fill="#4ADE80"
+        className="animate-pulse"
+      >
+        <animate
+          attributeName="r"
+          values="4;8;4"
+          dur="3s"
+          repeatCount="indefinite"
+        />
+        <animate
+          attributeName="opacity"
+          values="1;0.5;1"
+          dur="3s"
+          repeatCount="indefinite"
+        />
+      </circle>
+    </g>
+  )), [regions, activeRegion, handleRegionClick]);
 
-  const getEventColor = (type: string) => {
-    switch (type) {
-      case 'apertura': return '#4ADE80';
-      case 'concesion': return '#22C55E';
-      case 'solicitud': return '#16A34A';
-      default: return '#4ADE80';
-    }
-  };
-
-  const getEventIcon = (type: string) => {
-    switch (type) {
-      case 'apertura': return '📢';
-      case 'concesion': return '✅';
-      case 'solicitud': return '📝';
-      default: return '📢';
-    }
-  };
+  // Memoize event history items
+  const eventHistoryItems = useMemo(() => eventHistory.map((event, index) => (
+    <div
+      key={`${event.region}-${event.type}-${index}`}
+      className="flex items-start gap-3 p-3 bg-white/10 rounded-lg border border-white/20"
+    >
+      <div 
+        className="w-3 h-3 rounded-full mt-1.5 flex-shrink-0"
+        style={{ backgroundColor: getEventColor(event.type) }}
+      ></div>
+      <div className="flex-1 min-w-0">
+        <p className="font-inter text-sm text-white truncate">
+          {getEventIcon(event.type)} {event.title}
+        </p>
+        <div className="flex items-center justify-between mt-1">
+          <p className="font-inter text-xs text-[#4ADE80]">{event.region}</p>
+          {event.amount && (
+            <p className="font-inter text-xs text-gray-300 font-medium">{event.amount}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  )), [eventHistory, getEventColor, getEventIcon]);
 
   // Renderizado estático durante SSR
   if (!mounted) {
@@ -209,45 +276,10 @@ export default function SpainMap() {
                 {/* Fondo del mapa */}
                 <rect width="500" height="400" fill="#F1F5F9" rx="8" />
                 
-                {/* Regiones */}
-                {regions.map((region) => (
-                  <g key={region.id}>
-                    <path
-                      d={region.path}
-                      fill={activeRegion === region.id ? '#4ADE80' : '#E2E8F0'}
-                      stroke="#94A3B8"
-                      strokeWidth="1"
-                      className="cursor-pointer transition-all duration-300 hover:fill-[#4ADE80]/70"
-                      onClick={() => handleRegionClick(region.id)}
-                      onMouseEnter={() => setHoveredRegion(region.id)}
-                      onMouseLeave={() => setHoveredRegion(null)}
-                    />
-                    
-                    {/* Puntos animados */}
-                    <circle
-                      cx={region.center.x}
-                      cy={region.center.y}
-                      r="4"
-                      fill="#4ADE80"
-                      className="animate-pulse"
-                    >
-                      <animate
-                        attributeName="r"
-                        values="4;8;4"
-                        dur="2s"
-                        repeatCount="indefinite"
-                      />
-                      <animate
-                        attributeName="opacity"
-                        values="1;0.5;1"
-                        dur="2s"
-                        repeatCount="indefinite"
-                      />
-                    </circle>
-                  </g>
-                ))}
+                {/* Regiones optimizadas */}
+                {regionElements}
                 
-                {/* Evento actual */}
+                {/* Evento actual optimizado */}
                 {currentEvent && (
                   <g>
                     {regions
@@ -264,8 +296,14 @@ export default function SpainMap() {
                             <animate
                               attributeName="r"
                               values="12;20;12"
-                              dur="1s"
-                              repeatCount="indefinite"
+                              dur="2s"
+                              repeatCount="3"
+                            />
+                            <animate
+                              attributeName="opacity"
+                              values="0.8;0.3;0.8"
+                              dur="2s"
+                              repeatCount="3"
                             />
                           </circle>
                         </g>
@@ -288,82 +326,33 @@ export default function SpainMap() {
             </div>
           </div>
 
-          {/* Panel de actividad */}
-          <div className="space-y-6">
-            {/* Evento actual */}
-            {currentEvent && (
-              <div className="bg-gradient-to-r from-[#4ADE80]/10 to-[#22C55E]/10 p-6 rounded-2xl border border-[#4ADE80]/20">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">{getEventIcon(currentEvent.type)}</span>
-                  <div>
-                    <div className="font-sora font-semibold text-[#1E2A38] capitalize">
-                      {currentEvent.type}
-                    </div>
-                    <div className="font-inter text-sm text-[#6B7280]">
-                      {currentEvent.region}
-                    </div>
-                  </div>
-                </div>
-                <div className="font-inter text-[#1E2A38] mb-2">
-                  {currentEvent.title}
-                </div>
-                {currentEvent.amount && (
-                  <div className="font-sora font-bold text-[#4ADE80]">
-                    {currentEvent.amount}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Historial de eventos */}
-            <div>
-              <h3 className="font-sora font-semibold text-[#1E2A38] mb-4">
-                Actividad reciente
-              </h3>
-              <div className="space-y-3">
-                {eventHistory.map((event, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-3 p-3 bg-[#F8FAFC] rounded-lg border border-[#E5E7EB]"
-                    style={{ opacity: 1 - (index * 0.2) }}
-                  >
-                    <span className="text-lg">{getEventIcon(event.type)}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-inter text-sm text-[#1E2A38] truncate">
-                        {event.title}
-                      </div>
-                      <div className="font-inter text-xs text-[#6B7280]">
-                        {event.region} • Hace {index + 1} min
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          {/* Panel de actividad optimizado */}
+          <div className="bg-gradient-to-br from-[#1E2A38] to-[#374151] rounded-2xl p-6 text-white">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-3 h-3 bg-[#4ADE80] rounded-full animate-pulse"></div>
+              <h3 className="font-sora font-semibold text-xl">Actividad Reciente</h3>
             </div>
-
-            {/* Estadísticas */}
-            <div className="bg-[#F8FAFC] p-6 rounded-2xl border border-[#E5E7EB]">
-              <h3 className="font-sora font-semibold text-[#1E2A38] mb-4">
-                Últimas 24h
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="font-inter text-[#6B7280]">Nuevas convocatorias</span>
-                  <span className="font-sora font-bold text-[#4ADE80]">47</span>
+            
+            <div className="space-y-4 max-h-80 overflow-y-auto">
+              {eventHistoryItems}
+              
+              {eventHistory.length === 0 && (
+                <div className="flex items-start gap-3 p-3 bg-white/10 rounded-lg">
+                  <div className="w-3 h-3 bg-[#4ADE80] rounded-full mt-1.5 flex-shrink-0"></div>
+                  <div>
+                    <p className="font-inter text-sm">Monitorizando actividad...</p>
+                    <p className="font-inter text-xs text-gray-300">Conectando con fuentes de datos</p>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="font-inter text-[#6B7280]">Ayudas concedidas</span>
-                  <span className="font-sora font-bold text-[#22C55E]">23</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-inter text-[#6B7280]">Solicitudes</span>
-                  <span className="font-sora font-bold text-[#16A34A]">189</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
       </div>
     </section>
   );
-}
+});
+
+SpainMap.displayName = 'SpainMap';
+
+export default SpainMap;

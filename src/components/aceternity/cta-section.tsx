@@ -14,24 +14,26 @@ export default function CTASection() {
       {/* Floating elements */}
       <motion.div
         className="absolute top-10 left-10 w-24 sm:w-32 lg:w-40 h-24 sm:h-32 lg:h-40 bg-white/10 rounded-full blur-2xl"
+        style={{ willChange: 'transform' }}
         animate={{
           scale: [1, 1.2, 1],
           opacity: [0.3, 0.6, 0.3],
         }}
         transition={{
-          duration: 6,
+          duration: 12,
           repeat: Infinity,
           ease: "easeInOut",
         }}
       />
       <motion.div
         className="absolute bottom-10 right-10 w-32 sm:w-40 lg:w-48 h-32 sm:h-40 lg:h-48 bg-white/10 rounded-full blur-2xl"
+        style={{ willChange: 'transform' }}
         animate={{
           scale: [1.2, 1, 1.2],
           opacity: [0.6, 0.3, 0.6],
         }}
         transition={{
-          duration: 8,
+          duration: 16,
           repeat: Infinity,
           ease: "easeInOut",
         }}

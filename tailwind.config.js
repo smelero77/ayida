@@ -6,9 +6,12 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        'lato': ['var(--font-lato)', 'sans-serif'],
+        'cairo': ['var(--font-cairo)', 'sans-serif'],
         'sora': ['var(--font-sora)', 'sans-serif'],
         'inter': ['var(--font-inter)', 'sans-serif'],
         'rubik': ['var(--font-rubik)', 'sans-serif'],
+        'sans': ['var(--font-lato)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       colors: {
         'zetika': {

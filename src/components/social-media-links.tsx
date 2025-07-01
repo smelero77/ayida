@@ -1,0 +1,1 @@
+export { SocialMediaLinks } from "@/components-shadboard/social-media-links"; 

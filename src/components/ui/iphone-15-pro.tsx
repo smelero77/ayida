@@ -1,0 +1,1 @@
+export * from "@/components-shadboard-new/ui/iphone-15-pro"; 

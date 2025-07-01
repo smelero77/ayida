@@ -26,4 +26,42 @@ const Separator = React.forwardRef<
 )
 Separator.displayName = SeparatorPrimitive.Root.displayName
 
-export { Separator }
+const SeparatorWithText = React.forwardRef<
+  React.ElementRef<"div">,
+  React.ComponentPropsWithoutRef<"div"> & {
+    text?: string
+    textClassName?: string
+    orientation?: "horizontal" | "vertical"
+  }
+>(({ className, text, textClassName, orientation = "horizontal", ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "relative flex items-center",
+      orientation === "horizontal" ? "w-full" : "h-full flex-col",
+      className
+    )}
+    {...props}
+  >
+    <div className={cn(
+      "bg-border",
+      orientation === "horizontal" ? "h-[1px] flex-1" : "w-[1px] flex-1"
+    )} />
+    {text && (
+      <div className={cn(
+        "bg-background px-3 text-sm text-muted-foreground",
+        orientation === "horizontal" ? "mx-3" : "my-3",
+        textClassName
+      )}>
+        {text}
+      </div>
+    )}
+    <div className={cn(
+      "bg-border",
+      orientation === "horizontal" ? "h-[1px] flex-1" : "w-[1px] flex-1"
+    )} />
+  </div>
+))
+SeparatorWithText.displayName = "SeparatorWithText"
+
+export { Separator, SeparatorWithText }

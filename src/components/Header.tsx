@@ -197,7 +197,7 @@ export default function Header() {
             {/* Bloque derecho: botones */}
             <div className="hidden lg:flex items-center gap-3">
               <a 
-                href="/signin" 
+                href="/es/signin" 
                 className="font-rubik font-medium text-base lg:text-[15px] text-[rgb(255,65,90)] hover:text-[rgb(255,65,90)]/70 transition-colors duration-200"
               >
                 Acceder
@@ -275,7 +275,7 @@ export default function Header() {
             {/* Bloque derecho: botones */}
             <div className="hidden lg:flex items-center gap-3 ml-36">
               <a 
-                href="/signin" 
+                href="/es/signin" 
                 className="font-rubik font-medium text-base lg:text-[15px] text-[rgb(255,65,90)] hover:text-[rgb(255,65,90)]/70 transition-colors duration-200"
               >
                 Acceder

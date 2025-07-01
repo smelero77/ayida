@@ -50,15 +50,18 @@ export const authConfig = {
           return null;
         }
 
+        const email = credentials.email as string;
+        const password = credentials.password as string;
+
         const user = await db.user.findUnique({
-          where: { email: credentials.email }
+          where: { email }
         });
 
-        if (!user || !user.password) {
+        if (!user?.password) {
           return null;
         }
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+        const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
           return null;
@@ -96,8 +99,21 @@ export const authConfig = {
       }
       return token;
     },
+    // Callback to redirect after successful sign in
+    redirect: ({ url, baseUrl }) => {
+      // Si es una URL relativa, crear la URL completa
+      if (url.startsWith("/")) {
+        return `${baseUrl}${url}`;
+      }
+      // Si ya es una URL completa y del mismo dominio, permitirla
+      if (url.startsWith(baseUrl)) {
+        return url;
+      }
+      // Por defecto, redirigir al dashboard
+      return `${baseUrl}/dashboard`;
+    },
   },
   pages: {
     signIn: "/signin",
   },
-} satisfies NextAuthConfig;
+} satisfies NextAuthConfig; 

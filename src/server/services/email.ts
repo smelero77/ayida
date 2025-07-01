@@ -42,13 +42,13 @@ export async function sendEmail(emailData: EmailData) {
     logger.info('Iniciando envío de email con Resend', {
       to: emailData.to,
       subject: emailData.subject,
-      from: emailData.from || env.RESEND_FROM_EMAIL,
+      from: emailData.from ?? env.RESEND_FROM_EMAIL,
       hasApiKey: !!env.RESEND_API_KEY,
-      apiKeyLength: env.RESEND_API_KEY?.length || 0,
+      apiKeyLength: env.RESEND_API_KEY?.length ?? 0,
     });
 
     const { data, error } = await resend.emails.send({
-      from: emailData.from || env.RESEND_FROM_EMAIL,
+      from: emailData.from ?? env.RESEND_FROM_EMAIL,
       to: emailData.to,
       subject: emailData.subject,
       html: emailData.html,
@@ -265,28 +265,26 @@ export async function sendNotificationEmail({ name, email, title, message, actio
       
       <div style="background: #f8f9fa; padding: 30px; border-radius: 10px; margin-bottom: 30px;">
         <h2 style="color: #333; margin-bottom: 20px;">¡Hola ${name}!</h2>
-        <div style="margin: 30px 0;">
-          ${message}
-        </div>
+        <p>${message}</p>
         
         ${actionUrl && actionText ? `
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${actionUrl}" 
-               style="background: linear-gradient(135deg, #ff5c72 0%, #ff415a 100%); 
-                      color: white; 
-                      padding: 15px 30px; 
-                      text-decoration: none; 
-                      border-radius: 25px; 
-                      display: inline-block; 
-                      font-weight: bold;">
-              ${actionText}
-            </a>
-          </div>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${actionUrl}" 
+             style="background: linear-gradient(135deg, #ff5c72 0%, #ff415a 100%); 
+                    color: white; 
+                    padding: 15px 30px; 
+                    text-decoration: none; 
+                    border-radius: 25px; 
+                    display: inline-block; 
+                    font-weight: bold;">
+            ${actionText}
+          </a>
+        </div>
         ` : ''}
       </div>
       
       <div style="text-align: center; color: #666; font-size: 14px;">
-        <p>Si tienes alguna pregunta, contacta con nosotros en <a href="mailto:info@ayidaportal.com" style="color: #ff415a;">info@ayidaportal.com</a></p>
+        <p>Si tienes alguna pregunta, no dudes en contactarnos en <a href="mailto:info@ayidaportal.com" style="color: #ff415a;">info@ayidaportal.com</a></p>
         <p>© ${new Date().getFullYear()} zétika.app. Todos los derechos reservados.</p>
       </div>
     </body>
@@ -316,22 +314,21 @@ export async function sendNotificationEmail({ name, email, title, message, actio
 }
 
 /**
- * Verifica que el servicio de email esté configurado correctamente
+ * Función de prueba para verificar que el servicio de email funciona correctamente
  */
 export async function testEmailService() {
   try {
-    const testEmail = 'test@example.com';
-    const result = await sendEmail({
-      to: testEmail,
+    const testEmail = await sendEmail({
+      to: 'test@example.com',
       subject: 'Test Email - zétika.app',
-      html: '<h1>Test Email</h1><p>Este es un email de prueba.</p>',
-      text: 'Test Email\n\nEste es un email de prueba.',
+      html: '<p>Este es un email de prueba.</p>',
+      text: 'Este es un email de prueba.',
     });
-    
-    logger.info('Servicio de email configurado correctamente', { messageId: result?.id });
-    return { success: true, messageId: result?.id };
+
+    logger.info('Email de prueba enviado exitosamente', { messageId: testEmail?.id });
+    return testEmail;
   } catch (error) {
-    logger.error('Error al probar el servicio de email', error as Error);
-    return { success: false, error: (error as Error).message };
+    logger.error('Error en email de prueba', error as Error);
+    throw error;
   }
 } 

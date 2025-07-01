@@ -1,0 +1,227 @@
+{
+  "navigation": {
+    "dashboards": "Dashboards",
+    "analytics": "Analytics",
+    "crm": "CRM",
+    "ecommerce": "eCommerce",
+    "pages": "Pages",
+    "landing": "Landing",
+    "pricing": "Pricing",
+    "payment": "Payment",
+    "helpCenter": "Help Center",
+    "notFound404": "Not Found 404",
+    "unauthorized401": "Unauthorized 401",
+    "maintenance": "Maintenance",
+    "comingSoon": "Coming Soon",
+    "settings": "Settings",
+    "profile": "Profile",
+    "apps": "Apps",
+    "email": "Email",
+    "chat": "Chat",
+    "calendar": "Calendar",
+    "kanban": "Kanban",
+    "todo": "Todo",
+    "authentication": "Authentication",
+    "forgotPassword": "Forgot Password",
+    "newPassword": "New Password",
+    "verifyEmail": "Verify Email",
+    "register": "Register",
+    "signIn": "Sign In",
+    "designSystem": "Design System",
+    "forms": "Forms",
+    "basicInputs": "Basic Inputs",
+    "fileDropzone": "File Dropzone",
+    "fileDropzones": "File Dropzones",
+    "formLayouts": "Form Layouts",
+    "pickers": "Pickers",
+    "selectAndTags": "Select and Tags",
+    "tables": "Tables",
+    "charts": "Charts",
+    "areaCharts": "Area Charts",
+    "barCharts": "Bar Charts",
+    "composedCharts": "Composed Charts",
+    "lineCharts": "Line Charts",
+    "pieCharts": "Pie Charts",
+    "radarCharts": "Radar Charts",
+    "radialBarCharts": "Radial Bar Charts",
+    "scatterCharts": "Scatter Charts",
+    "treemapCharts": "Treemap Charts",
+    "icons": "Icons",
+    "lucide": "Lucide",
+    "reactIcons": "React Icons",
+    "cards": "Cards",
+    "advanced": "Advanced",
+    "basic": "Basic",
+    "statistics": "Statistics",
+    "colors": "Colors",
+    "typography": "Typography",
+    "ui": "UI",
+    "accordion": "Accordion",
+    "alert": "Alert",
+    "alertDialog": "Alert Dialog",
+    "aspectRatio": "Aspect Ratio",
+    "avatar": "Avatar",
+    "badge": "Badge",
+    "breadcrumb": "Breadcrumb",
+    "button": "Button",
+    "card": "Card",
+    "label": "Label",
+    "fallback": "Fallback",
+    "carousel": "Carousel",
+    "checkbox": "Checkbox",
+    "collapsible": "Collapsible",
+    "combobox": "Combobox",
+    "command": "Command",
+    "contextMenu": "Context Menu",
+    "datePicker": "Date Picker",
+    "dialog": "Dialog",
+    "drawer": "Drawer",
+    "dropdownMenu": "Dropdown Menu",
+    "form": "Form",
+    "hoverCard": "Hover Card",
+    "input": "Input",
+    "inputOtp": "Input OTP",
+    "menubar": "Menubar",
+    "navigationMenu": "Navigation Menu",
+    "pagination": "Pagination",
+    "popover": "Popover",
+    "progress": "Progress",
+    "radioGroup": "Radio Group",
+    "resizable": "Resizable",
+    "scrollArea": "Scroll Area",
+    "select": "Select",
+    "separator": "Separator",
+    "sheet": "Sheet",
+    "skeleton": "Skeleton",
+    "slider": "Slider",
+    "sonner": "Sonner",
+    "switch": "Switch",
+    "table": "Table",
+    "tabs": "Tabs",
+    "textarea": "Textarea",
+    "toast": "Toast",
+    "toggle": "Toggle",
+    "toggleGroup": "Toggle Group",
+    "tooltip": "Tooltip",
+    "extendedUi": "Extended UI",
+    "avatarStack": "Avatar Stack",
+    "mediaGrid": "Media Grid",
+    "editor": "Editor",
+    "inputFile": "Input File",
+    "inputGroup": "Input Group",
+    "inputPhone": "Input Phone",
+    "inputSpin": "Input Spin",
+    "keyboard": "Keyboard",
+    "rating": "Rating",
+    "separatorWithText": "Separator with Text",
+    "showMoreText": "Show More Text",
+    "inputTags": "Input Tags",
+    "emojiPicker": "Emoji Picker",
+    "timeline": "Timeline",
+    "stickyLayout": "Sticky Layout",
+    "bentoGrid": "Bento Grid",
+    "mockups": "Mockups",
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "list": "List",
+    "add": "Add",
+    "category": "Category",
+    "orders": "Orders",
+    "details": "Details",
+    "customers": "Customers",
+    "language": {
+      "language": "Language",
+      "english": "English",
+      "arabic": "Arabic",
+      "spanish": "Spanish"
+    },
+    "mode": {
+      "mode": "Mode",
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System"
+    },
+    "notifications": {
+      "notifications": "Notifications",
+      "dismissAll": "Dismiss All",
+      "seeAllNotifications": "See All Notifications"
+    },
+    "userNav": {
+      "profile": "Profile",
+      "settings": "Settings",
+      "signOut": "Sign out"
+    }
+  },
+  "label": {
+    "soon": "Soon",
+    "new": "New"
+  },
+  "search": {
+    "search": "Search...",
+    "noResults": "No results found.",
+    "typeCommand": "Type a command or search..."
+  },
+  "accountSettings": {
+    "nav": {
+      "general": "General",
+      "security": "Security",
+      "planBilling": "Plan & Billing",
+      "notifications": "Notifications",
+      "personalData": "Personal Data",
+      "profiles": "Profiles"
+    },
+    "profileInfo": {
+      "title": "Profile Information",
+      "description": "Update your public profile details."
+    },
+    "dangerousZone": {
+      "title": "Dangerous Zone",
+      "description": "Manage sensitive settings such as account deletion or deactivation. Proceed with caution."
+    },
+    "changePassword": {
+      "title": "Change Password",
+      "description": "Update your password to keep your account secure. Choose a strong, unique password."
+    },
+    "securityPreferences": {
+      "title": "Security Preferences",
+      "description": "Update your security settings to enhance account protection and manage security features."
+    },
+    "accountRecoveryOptions": {
+      "title": "Account Recovery Options",
+      "description": "Set up and manage recovery options to easily regain access to your account if you forget your password."
+    },
+    "recentLogs": {
+      "title": "Recent Logs",
+      "description": "View recent activity on your account. Check for any unusual or suspicious actions.",
+      "seeAll": "See All"
+    },
+    "currentPlan": {
+      "title": "Current Plan",
+      "description": "Review details of your subscription plan and manage your billing options.",
+      "labels": {
+        "activeProjects": "Active Projects",
+        "teamMembers": "Team Members",
+        "storageUsed": "Storage Used",
+        "activityThisMonth": "This Month's Activity",
+        "nextBillingDate": "Next billing date:",
+        "amountDue": "Amount due:"
+      }
+    },
+    "changePlan": {
+      "title": "Change Plan",
+      "description": "Choose the plan that best fits your needs. Prices shown are per month."
+    },
+    "paymentMethod": {
+      "title": "Payment Method",
+      "description": "Choose your payment method and enter your details."
+    },
+    "savedCards": {
+      "title": "Saved Cards",
+      "description": "View and manage your stored payment cards for easy checkout."
+    },
+    "notificationPreferences": {
+      "title": "Notification Preferences",
+      "description": "Adjust your settings to control which notifications you receive."
+    }
+  }
+}

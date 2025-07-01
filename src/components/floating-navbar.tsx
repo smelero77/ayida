@@ -25,6 +25,7 @@ export const FloatingNav = ({
 
   useEffect(() => {
     let lastScrollY = window.scrollY
+    let ticking = false
 
     const updateScrollDirection = () => {
       const scrollY = window.scrollY
@@ -36,10 +37,18 @@ export const FloatingNav = ({
       setVisible(true)
 
       lastScrollY = scrollY > 0 ? scrollY : 0
+      ticking = false
     }
 
-    window.addEventListener("scroll", updateScrollDirection)
-    return () => window.removeEventListener("scroll", updateScrollDirection)
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(updateScrollDirection)
+        ticking = true
+      }
+    }
+
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [visible])
 
   return (
@@ -104,7 +113,7 @@ export const FloatingNav = ({
           transition={{ duration: 0.8 }}
         >
           <a 
-            href="/signin" 
+            href="/es/signin" 
             className="font-rubik font-medium text-base lg:text-[15px] text-[rgb(255,65,90)] hover:text-[rgb(255,65,90)]/70 transition-colors duration-200"
           >
             Acceder
@@ -142,7 +151,7 @@ export const FloatingNav = ({
                 ))}
                 <div className="border-t border-neutral-200 dark:border-neutral-800 pt-4 space-y-2">
                   <a 
-                    href="/signin" 
+                    href="/es/signin" 
                     className="block w-full text-center font-rubik font-medium text-base lg:text-[15px] text-[rgb(255,65,90)] hover:text-[rgb(255,65,90)]/70 transition-colors duration-200 py-2 px-4 rounded-lg hover:bg-gray-50"
                     onClick={() => setMobileMenuOpen(false)}
                   >

@@ -150,24 +150,26 @@ export default function TestimonialsSection() {
       {/* Floating elements */}
       <motion.div
         className="absolute top-1/3 left-3 sm:left-5 w-16 sm:w-20 lg:w-24 h-16 sm:h-20 lg:h-24 bg-blue-500/10 rounded-full blur-2xl"
+        style={{ willChange: 'transform' }}
         animate={{
           scale: [1, 1.3, 1],
           opacity: [0.2, 0.5, 0.2],
         }}
         transition={{
-          duration: 7,
+          duration: 14,
           repeat: Infinity,
           ease: "easeInOut",
         }}
       />
       <motion.div
         className="absolute bottom-1/3 right-3 sm:right-5 w-20 sm:w-24 lg:w-32 h-20 sm:h-24 lg:h-32 bg-purple-500/10 rounded-full blur-2xl"
+        style={{ willChange: 'transform' }}
         animate={{
           scale: [1.3, 1, 1.3],
           opacity: [0.5, 0.2, 0.5],
         }}
         transition={{
-          duration: 9,
+          duration: 18,
           repeat: Infinity,
           ease: "easeInOut",
         }}

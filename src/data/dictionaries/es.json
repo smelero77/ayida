@@ -1,0 +1,226 @@
+{
+  "navigation": {
+    "dashboards": "Dashboard",
+    "analytics": "analitycs",
+    "crm": "CRM",
+    "ecommerce": "ecommerce",
+    "pages": "Páginas",
+    "landing": "Página de inicio",
+    "pricing": "Precios",
+    "payment": "Pago",
+    "helpCenter": "Centro de ayuda",
+    "notFound404": "No encontrado 404",
+    "unauthorized401": "No autorizado 401",
+    "maintenance": "Mantenimiento",
+    "comingSoon": "Próximamente",
+    "settings": "Ajustes",
+    "profile": "Perfil",
+    "apps": "Aplicaciones",
+    "email": "Correo electrónico",
+    "chat": "Chat",
+    "calendar": "Calendario",
+    "kanban": "Kanban",
+    "todo": "Tareas",
+    "authentication": "Autenticación",
+    "forgotPassword": "He olvidado la contraseña",
+    "newPassword": "Nueva contraseña",
+    "verifyEmail": "Verificar correo electrónico",
+    "register": "Registrarse",
+    "signIn": "Iniciar sesión",
+    "designSystem": "Sistema de diseño",
+    "forms": "Formularios",
+    "basicInputs": "Entradas básicas",
+    "fileDropzone": "Área para soltar archivos",
+    "fileDropzones": "Áreas para soltar archivos",
+    "formLayouts": "Diseños de formulario",
+    "pickers": "Selectores",
+    "selectAndTags": "Seleccionar y etiquetas",
+    "tables": "Tablas",
+    "charts": "Gráficos",
+    "areaCharts": "Gráficos de área",
+    "barCharts": "Gráficos de barras",
+    "composedCharts": "Gráficos compuestos",
+    "lineCharts": "Gráficos de líneas",
+    "pieCharts": "Gráficos circulares",
+    "radarCharts": "Gráficos de radar",
+    "radialBarCharts": "Gráficos de barras radiales",
+    "scatterCharts": "Gráficos de dispersión",
+    "treemapCharts": "Gráficos de mapa de árbol",
+    "icons": "Iconos",
+    "lucide": "Lucide",
+    "reactIcons": "Iconos de React",
+    "cards": "Tarjetas",
+    "advanced": "Avanzado",
+    "basic": "Básico",
+    "statistics": "Estadísticas",
+    "colors": "Colores",
+    "typography": "Tipografía",
+    "ui": "Interfaz de usuario",
+    "accordion": "Acordeón",
+    "alert": "Alerta",
+    "alertDialog": "Diálogo de alerta",
+    "aspectRatio": "Relación de aspecto",
+    "avatar": "Avatar",
+    "badge": "Insignia",
+    "breadcrumb": "Miga de pan",
+    "button": "Botón",
+    "card": "Tarjeta",
+    "label": "Etiqueta",
+    "fallback": "Alternativo",
+    "carousel": "Carrusel",
+    "checkbox": "Casilla de verificación",
+    "collapsible": "Plegable",
+    "combobox": "Cuadro combinado",
+    "command": "Comando",
+    "contextMenu": "Menú contextual",
+    "datePicker": "Selector de fecha",
+    "dialog": "Diálogo",
+    "drawer": "Panel lateral",
+    "dropdownMenu": "Menú desplegable",
+    "form": "Formulario",
+    "hoverCard": "Tarjeta flotante",
+    "input": "Entrada",
+    "inputOtp": "Entrada de contraseña de un solo uso",
+    "menubar": "Barra de menú",
+    "navigationMenu": "Menú de navegación",
+    "pagination": "Paginación",
+    "popover": "Elemento emergente",
+    "progress": "Progreso",
+    "radioGroup": "Grupo de botones de radio",
+    "resizable": "Redimensionable",
+    "scrollArea": "Área de desplazamiento",
+    "select": "Seleccionar",
+    "separator": "Separador",
+    "sheet": "Hoja",
+    "skeleton": "Esqueleto",
+    "slider": "Control deslizante",
+    "sonner": "Sonner",
+    "switch": "Interruptor",
+    "table": "Tabla",
+    "tabs": "Pestañas",
+    "textarea": "Área de texto",
+    "toast": "Notificación",
+    "toggle": "Conmutador",
+    "toggleGroup": "Grupo de conmutadores",
+    "tooltip": "Información sobre herramientas",
+    "extendedUi": "Interfaz de usuario extendida",
+    "avatarStack": "Pila de avatares",
+    "mediaGrid": "Cuadrícula de medios",
+    "editor": "Editor",
+    "inputFile": "Entrada de archivo",
+    "inputGroup": "Grupo de entradas",
+    "inputPhone": "Entrada de teléfono",
+    "inputSpin": "Entrada numérica",
+    "keyboard": "Teclado",
+    "rating": "Valoración",
+    "separatorWithText": "Separador con texto",
+    "showMoreText": "Mostrar más texto",
+    "inputTags": "Etiquetas de entrada",
+    "emojiPicker": "Selector de emojis",
+    "timeline": "Línea de tiempo",
+    "stickyLayout": "Diseño fijo",
+    "bentoGrid": "Cuadrícula Bento",
+    "mockups": "Maquetas",
+    "dashboard": "Panel",
+    "products": "Productos",
+    "list": "Lista",
+    "add": "Añadir",
+    "category": "Categoría",
+    "orders": "Pedidos",
+    "details": "Detalles",
+    "customers": "Clientes",
+    "language": {
+      "language": "Idioma",
+      "english": "Inglés",
+      "arabic": "Árabe"
+    },
+    "mode": {
+      "mode": "Modo",
+      "dark": "Oscuro",
+      "light": "Claro",
+      "system": "Sistema"
+    },
+    "notifications": {
+      "notifications": "Notificaciones",
+      "dismissAll": "Descartar todo",
+      "seeAllNotifications": "Ver todas las notificaciones"
+    },
+    "userNav": {
+      "profile": "Perfil",
+      "settings": "Ajustes",
+      "signOut": "Cerrar sesión"
+    }
+  },
+  "label": {
+    "soon": "Próximamente",
+    "new": "Nuevo"
+  },
+  "search": {
+    "search": "Buscar...",
+    "noResults": "No se han encontrado resultados.",
+    "typeCommand": "Escribe un comando o busca..."
+  },
+  "accountSettings": {
+    "nav": {
+      "general": "General",
+      "security": "Seguridad",
+      "planBilling": "Plan y facturación",
+      "notifications": "Notificaciones",
+      "personalData": "Datos personales",
+      "profiles": "Perfiles"
+    },
+    "profileInfo": {
+      "title": "Información del perfil",
+      "description": "Actualiza los detalles de tu perfil público."
+    },
+    "dangerousZone": {
+      "title": "Zona peligrosa",
+      "description": "Gestiona configuraciones sensibles, como la eliminación o desactivación de la cuenta. Procede con precaución."
+    },
+    "changePassword": {
+      "title": "Cambiar contraseña",
+      "description": "Actualiza tu contraseña para mantener tu cuenta segura. Elige una contraseña fuerte y única."
+    },
+    "securityPreferences": {
+      "title": "Preferencias de seguridad",
+      "description": "Actualiza tus ajustes de seguridad para mejorar la protección de tu cuenta y gestionar las funciones de seguridad."
+    },
+    "accountRecoveryOptions": {
+      "title": "Opciones de recuperación de cuenta",
+      "description": "Configura y gestiona opciones de recuperación para recuperar fácilmente el acceso si olvidas tu contraseña."
+    },
+    "recentLogs": {
+      "title": "Registros recientes",
+      "description": "Consulta la actividad reciente de tu cuenta. Comprueba si hay acciones inusuales o sospechosas.",
+      "seeAll": "Ver todo"
+    },
+    "currentPlan": {
+      "title": "Plan actual",
+      "description": "Revisa los detalles de tu suscripción y gestiona tus opciones de facturación.",
+      "labels": {
+        "activeProjects": "Proyectos activos",
+        "teamMembers": "Miembros del equipo",
+        "storageUsed": "Almacenamiento usado",
+        "activityThisMonth": "Actividad de este mes",
+        "nextBillingDate": "Próxima fecha de facturación:",
+        "amountDue": "Importe adeudado:"
+      }
+    },
+    "changePlan": {
+      "title": "Cambiar plan",
+      "description": "Elige el plan que mejor se adapte a tus necesidades. Los precios mostrados son por mes."
+    },
+    "paymentMethod": {
+      "title": "Método de pago",
+      "description": "Elige tu método de pago e introduce tus datos."
+    },
+    "savedCards": {
+      "title": "Tarjetas guardadas",
+      "description": "Consulta y gestiona tus tarjetas guardadas para un pago rápido."
+    },
+    "notificationPreferences": {
+      "title": "Preferencias de notificación",
+      "description": "Ajusta tus preferencias para controlar qué notificaciones recibes."
+    }
+  }
+}

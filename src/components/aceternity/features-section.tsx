@@ -151,24 +151,27 @@ export default function FeaturesSection() {
       {/* Floating elements */}
       <motion.div
         className="absolute top-1/4 left-5 sm:left-10 w-20 sm:w-24 lg:w-32 h-20 sm:h-24 lg:h-32 bg-blue-500/10 rounded-full blur-2xl sm:blur-3xl"
+        style={{ willChange: 'transform' }}
         animate={{
           scale: [1, 1.2, 1],
           opacity: [0.3, 0.6, 0.3],
         }}
         transition={{
-          duration: 6,
+          duration: 12,
           repeat: Infinity,
           ease: "easeInOut",
         }}
       />
+      
       <motion.div
         className="absolute bottom-1/4 right-5 sm:right-10 w-24 sm:w-32 lg:w-40 h-24 sm:h-32 lg:h-40 bg-purple-500/10 rounded-full blur-2xl sm:blur-3xl"
+        style={{ willChange: 'transform' }}
         animate={{
           scale: [1.2, 1, 1.2],
           opacity: [0.6, 0.3, 0.6],
         }}
         transition={{
-          duration: 8,
+          duration: 16,
           repeat: Infinity,
           ease: "easeInOut",
         }}

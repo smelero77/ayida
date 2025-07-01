@@ -1,8 +1,9 @@
 "use client"
 
-import { useToast as useHeroToast } from "@heroui/react"
+import { toast } from "sonner"
+
+export { toast }
 
 export function useToast() {
-  const { toast } = useHeroToast()
   return { toast }
 } 

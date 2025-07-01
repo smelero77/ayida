@@ -1,92 +1,75 @@
 "use client"
 
-import { addToast } from "@heroui/react"
+import { toast } from "sonner"
 
-// Hook personalizado que usa el toast de HeroUI correctamente
+// Hook personalizado que usa Sonner
 export function useShowToast() {
   return {
     success: (title: string, description?: string) => {
-      addToast({
-        title,
+      toast.success(title, {
         description,
-        color: "success",
-        variant: "flat",
-        radius: "md",
-        shadow: "md",
-        timeout: 5000,
+        duration: 5000,
       })
     },
 
     error: (title: string, description?: string) => {
-      addToast({
-        title,
+      toast.error(title, {
         description,
-        color: "danger",
-        variant: "flat",
-        radius: "md",
-        shadow: "md",
-        timeout: 7000,
+        duration: 7000,
       })
     },
 
     info: (title: string, description?: string) => {
-      addToast({
-        title,
+      toast.info(title, {
         description,
-        color: "primary",
-        variant: "flat",
-        radius: "md",
-        shadow: "md",
-        timeout: 5000,
+        duration: 5000,
       })
     },
 
     warning: (title: string, description?: string) => {
-      addToast({
-        title,
+      toast.warning(title, {
         description,
-        color: "warning",
-        variant: "flat",
-        radius: "md",
-        shadow: "md",
-        timeout: 6000,
+        duration: 6000,
       })
     },
 
     loading: (title: string, description?: string) => {
-      return addToast({
-        title,
+      return toast.loading(title, {
         description,
-        color: "default",
-        variant: "flat",
-        radius: "md",
-        shadow: "md",
-        timeout: 0,
+        duration: Infinity,
       })
     },
 
     custom: (options: {
       title: string
       description?: string
-      color?: "default" | "primary" | "secondary" | "success" | "warning" | "danger"
-      variant?: "solid" | "bordered" | "flat"
-      radius?: "none" | "sm" | "md" | "lg" | "full"
-      shadow?: "none" | "sm" | "md" | "lg"
-      timeout?: number
-      hideIcon?: boolean
-      closeIcon?: React.ReactNode
+      type?: "success" | "error" | "info" | "warning" | "loading"
+      duration?: number
+      action?: {
+        label: string
+        onClick: () => void
+      }
     }) => {
-      return addToast({
-        title: options.title,
+      const toastOptions = {
         description: options.description,
-        color: options.color || "default",
-        variant: options.variant || "flat",
-        radius: options.radius || "md",
-        shadow: options.shadow || "md",
-        timeout: options.timeout || 5000,
-        hideIcon: options.hideIcon || false,
-        closeIcon: options.closeIcon,
-      })
+        duration: options.duration ?? 5000,
+        action: options.action,
+      }
+
+      switch (options.type) {
+        case "success":
+          return toast.success(options.title, toastOptions)
+        case "error":
+          return toast.error(options.title, toastOptions)
+        case "info":
+          return toast.info(options.title, toastOptions)
+        case "warning":
+          return toast.warning(options.title, toastOptions)
+        case "loading":
+          return toast.loading(options.title, toastOptions)
+        default:
+          return toast(options.title, toastOptions)
+      }
     }
   }
 }
